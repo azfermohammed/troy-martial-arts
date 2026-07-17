@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "troy-martial-arts",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/AzferMohammed/dev/troy-martial-arts",
+      "port": 3000
+    }
+  ]
+}

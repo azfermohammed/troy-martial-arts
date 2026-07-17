@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Troy Martial Arts — Website + Staff Portal
 
-## Getting Started
+A complete rebuild of [troymartialarts.net](https://www.troymartialarts.net/): a modern,
+conversion-focused marketing site **plus** a working school-management portal, in one
+Next.js codebase. Built to demo to the business owners.
 
-First, run the development server:
+## Run it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## What's inside
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Public site (SEO-ready, statically rendered)
 
-## Learn More
+| Route | Purpose |
+|---|---|
+| `/` | Hero, 4-week trial offer, programs, values, real Google reviews, map |
+| `/programs` | Kids 5–10, Teens 11–15, Adults, Family, Competition Team, Summer Camp |
+| `/schedule` | Interactive 2024–25 weekly grid, filterable by age group |
+| `/reviews` | 4.9★ / 648-review wall (real public Google reviews) |
+| `/about` | 45+ years of history, mission & values, belt journey |
+| `/contact` | Trial-request form + phone, address, embedded map |
 
-To learn more about Next.js, take a look at the following resources:
+### Staff portal (`/portal`)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Demo-mode school management: **Dashboard** (KPIs, belt distribution, activity feed),
+**Students** (search, add/edit, belt promotion, assistants), **Attendance**
+(class check-in + history), **Payments** (tuition tracking, mark-paid), **Schedule**.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Sign in with any of the three demo accounts on the login screen.
+- Data is seeded + persisted in `localStorage` (`tma-portal-v1`) — refresh-safe,
+  device-local, zero backend needed for demos.
+- The data layer lives in `src/lib/portal/store.tsx`; swap its persistence for a real
+  backend (e.g. Supabase) without touching the page components.
 
-## Deploy on Vercel
+## Going to production (post-sale checklist)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [ ] Hook the trial form (`src/components/site/TrialForm.tsx`) to email/CRM — it
+      currently stores leads in `localStorage` (`tma-trial-leads`)
+- [ ] Replace the portal's localStorage store with a real backend + auth
+- [ ] Swap emoji program art for real class photos
+- [ ] Confirm current schedule/pricing with the owners (data in `src/lib/data.ts`)
+- [ ] Deploy on Vercel, point the domain
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Stack
+
+Next.js 16 (App Router) · React 19 · Tailwind CSS v4 · TypeScript.
+All business content is centralized in `src/lib/data.ts`.
