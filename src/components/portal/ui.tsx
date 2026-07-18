@@ -1,7 +1,35 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { BELT_RANKS } from "@/lib/data";
+import { usePortal } from "@/lib/portal/store";
+
+/** Renders children only for admin accounts; everyone else sees a lock screen. */
+export function AdminGate({ children }: { children: ReactNode }) {
+  const { user } = usePortal();
+  if (user?.role !== "admin") {
+    return (
+      <div className="mx-auto max-w-md py-24 text-center">
+        <span className="text-5xl">🔒</span>
+        <h1 className="mt-4 font-display text-2xl font-extrabold text-ink">
+          Admin access only
+        </h1>
+        <p className="mt-2 text-sm text-ink-soft/70">
+          Student records, attendance, and finances are only visible to admin
+          accounts.
+        </p>
+        <Link
+          href="/portal/dashboard"
+          className="mt-6 inline-block rounded-full bg-brand px-6 py-3 text-sm font-bold text-white shadow-pop"
+        >
+          Back to dashboard
+        </Link>
+      </div>
+    );
+  }
+  return <>{children}</>;
+}
 
 export const inputCls =
   "w-full rounded-xl border border-ink/15 bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-soft/40 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/20";

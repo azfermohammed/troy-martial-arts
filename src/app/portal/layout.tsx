@@ -7,16 +7,28 @@ import {
   PortalProvider,
   usePortal,
   type PortalUser,
+  type Role,
 } from "@/lib/portal/store";
 import { BIZ } from "@/lib/data";
 
-const NAV = [
-  { href: "/portal/dashboard", label: "Dashboard", icon: "📊" },
-  { href: "/portal/students", label: "Students", icon: "🥋" },
-  { href: "/portal/attendance", label: "Attendance", icon: "✅" },
-  { href: "/portal/payments", label: "Payments", icon: "💳" },
-  { href: "/portal/schedule", label: "Schedule", icon: "🗓️" },
-] as const;
+const ALL_ROLES: Role[] = ["student", "assistant", "instructor", "master", "admin"];
+
+const NAV: { href: string; label: string; icon: string; roles: Role[] }[] = [
+  { href: "/portal/dashboard", label: "Dashboard", icon: "📊", roles: ALL_ROLES },
+  { href: "/portal/schedule", label: "Schedule", icon: "🗓️", roles: ALL_ROLES },
+  { href: "/portal/messages", label: "Messages", icon: "💬", roles: ["assistant", "instructor", "master"] },
+  { href: "/portal/students", label: "Students", icon: "🥋", roles: ["admin"] },
+  { href: "/portal/attendance", label: "Attendance", icon: "✅", roles: ["admin"] },
+  { href: "/portal/payments", label: "Payments", icon: "💳", roles: ["admin"] },
+];
+
+const ROLE_BADGES: Record<Role, string> = {
+  student: "bg-blue-500/20 text-blue-200",
+  assistant: "bg-green-500/20 text-green-200",
+  instructor: "bg-amber-500/20 text-amber-200",
+  master: "bg-red-500/20 text-red-200",
+  admin: "bg-purple-500/20 text-purple-200",
+};
 
 function LoginScreen() {
   const { login } = usePortal();
@@ -29,10 +41,10 @@ function LoginScreen() {
             TMA
           </span>
           <h1 className="mt-5 font-display text-3xl font-extrabold text-white">
-            Staff Portal
+            Portal
           </h1>
           <p className="mt-2 text-sm text-white/60">
-            {BIZ.name} · school management
+            {BIZ.name} · students & staff
           </p>
         </div>
 
@@ -42,18 +54,25 @@ function LoginScreen() {
           </p>
           {DEMO_USERS.map((u: PortalUser) => (
             <button
-              key={u.name}
+              key={u.id}
               onClick={() => login(u)}
               className="flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition-all hover:border-gold/50 hover:bg-white/10"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand font-display text-base font-extrabold text-white">
                 {u.name.charAt(0)}
               </span>
-              <span>
-                <span className="block text-sm font-bold text-white">{u.name}</span>
-                <span className="block text-xs text-white/60">{u.title}</span>
+              <span className="min-w-0">
+                <span className="block truncate text-sm font-bold text-white">
+                  {u.name}
+                  {u.isHeadMaster && " ⭐"}
+                </span>
+                <span className="block truncate text-xs text-white/60">{u.title}</span>
               </span>
-              <span className="ml-auto text-white/40">→</span>
+              <span
+                className={`ml-auto shrink-0 rounded-full px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wide ${ROLE_BADGES[u.role]}`}
+              >
+                {u.role}
+              </span>
             </button>
           ))}
         </div>
@@ -73,6 +92,7 @@ function LoginScreen() {
 function Shell({ children }: { children: React.ReactNode }) {
   const { user, logout } = usePortal();
   const pathname = usePathname();
+  const nav = NAV.filter((item) => user && item.roles.includes(user.role));
 
   return (
     <div className="flex min-h-screen bg-cream">
@@ -87,12 +107,12 @@ function Shell({ children }: { children: React.ReactNode }) {
               Troy Martial Arts
             </span>
             <span className="block text-[10px] font-bold uppercase tracking-[0.18em] text-gold">
-              Staff Portal
+              Portal
             </span>
           </span>
         </Link>
         <nav className="mt-2 flex-1 space-y-1 px-3">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -108,8 +128,22 @@ function Shell({ children }: { children: React.ReactNode }) {
           ))}
         </nav>
         <div className="border-t border-white/10 p-4">
-          <p className="px-2 text-sm font-bold text-white">{user?.name}</p>
-          <p className="px-2 text-xs text-white/50">{user?.title}</p>
+          <div className="flex items-center justify-between px-2">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-bold text-white">
+                {user?.name}
+                {user?.isHeadMaster && " ⭐"}
+              </p>
+              <p className="truncate text-xs text-white/50">{user?.title}</p>
+            </div>
+            {user && (
+              <span
+                className={`shrink-0 rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase ${ROLE_BADGES[user.role]}`}
+              >
+                {user.role}
+              </span>
+            )}
+          </div>
           <button
             onClick={logout}
             className="mt-3 w-full rounded-xl border border-white/15 py-2 text-xs font-bold text-white/70 transition-colors hover:border-brand hover:text-white"
@@ -127,17 +161,26 @@ function Shell({ children }: { children: React.ReactNode }) {
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold font-display text-[10px] font-extrabold text-ink">
               TMA
             </span>
-            <span className="text-sm font-extrabold text-white">Staff Portal</span>
+            <span className="text-sm font-extrabold text-white">Portal</span>
           </Link>
-          <button
-            onClick={logout}
-            className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-bold text-white/80"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            {user && (
+              <span
+                className={`rounded-full px-2 py-0.5 text-[9px] font-extrabold uppercase ${ROLE_BADGES[user.role]}`}
+              >
+                {user.role}
+              </span>
+            )}
+            <button
+              onClick={logout}
+              className="rounded-full border border-white/20 px-3 py-1.5 text-xs font-bold text-white/80"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
         <nav className="sticky top-[53px] z-40 flex gap-1 overflow-x-auto border-b border-ink/10 bg-white px-3 py-2 lg:hidden">
-          {NAV.map((item) => (
+          {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}

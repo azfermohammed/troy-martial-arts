@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { SCHEDULE } from "@/lib/data";
 import { usePortal } from "@/lib/portal/store";
 import {
+  AdminGate,
   Card,
   inputCls,
   PageHeader,
@@ -19,7 +20,7 @@ const CLASS_OPTIONS = SCHEDULE.map((c) => ({
   group: c.group,
 }));
 
-export default function AttendancePage() {
+function AttendanceInner() {
   const { data, recordAttendance } = usePortal();
   const { students, attendance } = data;
 
@@ -194,5 +195,13 @@ export default function AttendancePage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AttendancePage() {
+  return (
+    <AdminGate>
+      <AttendanceInner />
+    </AdminGate>
   );
 }

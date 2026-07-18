@@ -8,6 +8,7 @@ import {
   type Student,
 } from "@/lib/portal/store";
 import {
+  AdminGate,
   BeltBadge,
   Card,
   inputCls,
@@ -31,7 +32,7 @@ const EMPTY_FORM = {
   isAssistant: false,
 };
 
-export default function StudentsPage() {
+function StudentsInner() {
   const { data, addStudent, updateStudent, deleteStudent } = usePortal();
   const { students, payments } = data;
 
@@ -329,5 +330,13 @@ export default function StudentsPage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function StudentsPage() {
+  return (
+    <AdminGate>
+      <StudentsInner />
+    </AdminGate>
   );
 }

@@ -15,12 +15,30 @@ import {
 } from "react";
 import type { AgeGroup } from "@/lib/data";
 
-export type Role = "owner" | "instructor" | "staff";
+// ----- Roles & permissions -----
+
+export type Role = "student" | "assistant" | "instructor" | "master" | "admin";
 
 export interface PortalUser {
+  id: string;
   name: string;
   role: Role;
   title: string;
+  isHeadMaster?: boolean; // only meaningful for role "master"
+  studentId?: string; // links student/assistant accounts to a Student record
+}
+
+/** Staff roles that appear on the schedule as class leads. */
+export const LEAD_ROLES: Role[] = ["instructor", "master"];
+/** Roles that can pick classes they help with. */
+export const HELPER_ROLES: Role[] = ["assistant", "instructor", "master"];
+/** Roles that can use messaging (assistants/instructors ↔ masters). */
+export const MESSAGING_ROLES: Role[] = ["assistant", "instructor", "master"];
+
+export function canMessage(from: Role, to: Role): boolean {
+  if (from === "assistant" || from === "instructor") return to === "master";
+  if (from === "master") return to === "assistant" || to === "instructor";
+  return false;
 }
 
 export interface Student {
@@ -53,10 +71,28 @@ export interface AttendanceRecord {
   present: boolean;
 }
 
+export interface Message {
+  id: string;
+  fromId: string;
+  fromName: string;
+  toId: string;
+  toName: string;
+  text: string;
+  ts: string; // ISO datetime
+}
+
+/** Per-class staffing: leads assigned by the head master; helpers self-selected. */
+export interface ClassStaffing {
+  leads: string[]; // PortalUser ids (instructors/masters)
+  helpers: string[]; // PortalUser ids (assistants/instructors/masters)
+}
+
 export interface PortalData {
   students: Student[];
   payments: Payment[];
   attendance: AttendanceRecord[];
+  messages: Message[];
+  staffing: Record<string, ClassStaffing>; // key: class id from lib/data SCHEDULE
 }
 
 export const PORTAL_BELTS = [
@@ -75,11 +111,20 @@ export const PORTAL_BELTS = [
   "Black 3rd Dan",
 ] as const;
 
+// ----- Demo accounts (one per role, plus a second master to demo assignment) -----
+
 export const DEMO_USERS: PortalUser[] = [
-  { name: "Master Trudeau", role: "owner", title: "Owner · Grand Master" },
-  { name: "Instructor Kim", role: "instructor", title: "Head Instructor" },
-  { name: "Front Desk", role: "staff", title: "Front Desk · Admin" },
+  { id: "u-trudeau", name: "Master Trudeau", role: "master", isHeadMaster: true, title: "Head Master · Owner" },
+  { id: "u-park", name: "Master Park", role: "master", title: "Master" },
+  { id: "u-kim", name: "Instructor Kim", role: "instructor", title: "Instructor" },
+  { id: "u-emma", name: "Emma Wilson", role: "assistant", title: "Assistant · Sr. Green", studentId: "s3" },
+  { id: "u-sarah", name: "Sarah Johnson", role: "student", title: "Student · Blue Belt", studentId: "s1" },
+  { id: "u-desk", name: "Front Desk", role: "admin", title: "Admin · Front Desk" },
 ];
+
+export function userById(id: string): PortalUser | undefined {
+  return DEMO_USERS.find((u) => u.id === id);
+}
 
 // ----- Seed data (synthetic demo records) -----
 
@@ -87,6 +132,8 @@ const daysAgo = (n: number) =>
   new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
 const daysAhead = (n: number) =>
   new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
+const hoursAgoISO = (n: number) =>
+  new Date(Date.now() - n * 3_600_000).toISOString();
 
 const SEED: PortalData = {
   students: [
@@ -137,12 +184,28 @@ const SEED: PortalData = {
     { id: "a13", studentId: "s3", classLabel: "Intermediate · Ages 11–15", date: daysAgo(5), present: true },
     { id: "a14", studentId: "s1", classLabel: "Advanced · Ages 11–15", date: daysAgo(6), present: true },
   ],
+  messages: [
+    { id: "m1", fromId: "u-emma", fromName: "Emma Wilson", toId: "u-trudeau", toName: "Master Trudeau", text: "Master Trudeau, can I assist the Saturday beginner class this week?", ts: hoursAgoISO(26) },
+    { id: "m2", fromId: "u-trudeau", fromName: "Master Trudeau", toId: "u-emma", toName: "Emma Wilson", text: "Absolutely — see you at 9:50 AM. Bring your sparring gear for the demo.", ts: hoursAgoISO(24) },
+    { id: "m3", fromId: "u-kim", fromName: "Instructor Kim", toId: "u-trudeau", toName: "Master Trudeau", text: "The 11–15 intermediate group is ready for testing prep. Can we schedule belt testing for early August?", ts: hoursAgoISO(5) },
+    { id: "m4", fromId: "u-kim", fromName: "Instructor Kim", toId: "u-park", toName: "Master Park", text: "Master Park, could you cover my Tuesday adult beginner class next week?", ts: hoursAgoISO(3) },
+  ],
+  staffing: {
+    c1: { leads: ["u-kim"], helpers: ["u-emma"] },
+    c2: { leads: ["u-kim"], helpers: [] },
+    c3: { leads: ["u-park"], helpers: [] },
+    c4: { leads: ["u-trudeau"], helpers: [] },
+    c7: { leads: ["u-park"], helpers: ["u-emma"] },
+    c9: { leads: ["u-trudeau"], helpers: [] },
+    c10: { leads: ["u-kim"], helpers: [] },
+    c12: { leads: ["u-trudeau"], helpers: [] },
+  },
 };
 
 // ----- Context -----
 
-const DATA_KEY = "tma-portal-v1";
-const AUTH_KEY = "tma-portal-user";
+const DATA_KEY = "tma-portal-v2";
+const AUTH_KEY = "tma-portal-user-v2";
 
 interface PortalCtx {
   ready: boolean;
@@ -157,6 +220,9 @@ interface PortalCtx {
   addPayment: (p: Omit<Payment, "id">) => void;
   markPaid: (id: string) => void;
   recordAttendance: (records: Omit<AttendanceRecord, "id">[]) => void;
+  sendMessage: (toId: string, text: string) => void;
+  setClassLeads: (classId: string, leadIds: string[]) => void;
+  toggleHelper: (classId: string, userId: string) => void;
 }
 
 const Ctx = createContext<PortalCtx | null>(null);
@@ -172,7 +238,13 @@ export function PortalProvider({ children }: { children: ReactNode }) {
       const raw = localStorage.getItem(DATA_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as PortalData;
-        if (parsed?.students && parsed?.payments && parsed?.attendance) {
+        if (
+          parsed?.students &&
+          parsed?.payments &&
+          parsed?.attendance &&
+          parsed?.messages &&
+          parsed?.staffing
+        ) {
           setData(parsed);
         }
       }
@@ -231,6 +303,7 @@ export function PortalProvider({ children }: { children: ReactNode }) {
 
   const deleteStudent = useCallback((id: string) => {
     setData((d) => ({
+      ...d,
       students: d.students.filter((s) => s.id !== id),
       payments: d.payments.filter((p) => p.studentId !== id),
       attendance: d.attendance.filter((a) => a.studentId !== id),
@@ -266,6 +339,51 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const sendMessage = useCallback((toId: string, text: string) => {
+    setUser((current) => {
+      if (!current) return current;
+      const to = userById(toId);
+      if (!to || !canMessage(current.role, to.role)) return current;
+      const msg: Message = {
+        id: crypto.randomUUID(),
+        fromId: current.id,
+        fromName: current.name,
+        toId: to.id,
+        toName: to.name,
+        text,
+        ts: new Date().toISOString(),
+      };
+      setData((d) => ({ ...d, messages: [...d.messages, msg] }));
+      return current;
+    });
+  }, []);
+
+  const setClassLeads = useCallback((classId: string, leadIds: string[]) => {
+    setData((d) => ({
+      ...d,
+      staffing: {
+        ...d.staffing,
+        [classId]: {
+          leads: leadIds,
+          helpers: d.staffing[classId]?.helpers ?? [],
+        },
+      },
+    }));
+  }, []);
+
+  const toggleHelper = useCallback((classId: string, userId: string) => {
+    setData((d) => {
+      const entry = d.staffing[classId] ?? { leads: [], helpers: [] };
+      const helpers = entry.helpers.includes(userId)
+        ? entry.helpers.filter((h) => h !== userId)
+        : [...entry.helpers, userId];
+      return {
+        ...d,
+        staffing: { ...d.staffing, [classId]: { ...entry, helpers } },
+      };
+    });
+  }, []);
+
   return (
     <Ctx.Provider
       value={{
@@ -281,6 +399,9 @@ export function PortalProvider({ children }: { children: ReactNode }) {
         addPayment,
         markPaid,
         recordAttendance,
+        sendMessage,
+        setClassLeads,
+        toggleHelper,
       }}
     >
       {children}

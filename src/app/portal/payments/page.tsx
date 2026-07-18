@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { usePortal, type Payment } from "@/lib/portal/store";
 import {
+  AdminGate,
   Card,
   inputCls,
   Modal,
@@ -14,7 +15,7 @@ import {
 
 type Tab = "All" | "Paid" | "Pending" | "Overdue";
 
-export default function PaymentsPage() {
+function PaymentsInner() {
   const { data, addPayment, markPaid } = usePortal();
   const { students, payments } = data;
 
@@ -224,5 +225,13 @@ export default function PaymentsPage() {
         </form>
       </Modal>
     </div>
+  );
+}
+
+export default function PaymentsPage() {
+  return (
+    <AdminGate>
+      <PaymentsInner />
+    </AdminGate>
   );
 }
