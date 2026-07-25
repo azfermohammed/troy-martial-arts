@@ -136,9 +136,11 @@ export default function SchedulePage() {
               we&apos;ll handle the rest.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <ButtonLink href="/contact">Start Free Trial</ButtonLink>
+              <ButtonLink href="/contact">
+                Start the {BIZ.trial.priceLabel} Trial
+              </ButtonLink>
               <ButtonLink href={BIZ.phoneHref} variant="secondary">
-                📞 {BIZ.phone}
+                Call {BIZ.phone}
               </ButtonLink>
             </div>
           </div>

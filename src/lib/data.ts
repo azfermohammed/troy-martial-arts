@@ -18,17 +18,47 @@ export const BIZ = {
   classesPerWeek: "24+",
   mapsHref:
     "https://www.google.com/maps/search/?api=1&query=Troy+Martial+Arts+1881+South+Blvd+W+Troy+MI+48098",
+  hours: "Monday–Sunday, 8:00am – 10:00pm",
+  daysPerWeek: "6 days a week",
+  serviceArea:
+    "On the corner border of five towns — Troy, Rochester Hills, Auburn Hills, Rochester and Bloomfield.",
+  tagline: "Try us out for 4 weeks, and see for yourself all these great advantages!",
+  motto: "We can make a difference!",
   mission:
     "To teach the highest-quality martial arts classes, empower students with valuable skills for daily life, and contribute to a safe and peaceful community.",
   values: ["Self-Confidence", "Respect", "Courtesy", "Integrity"],
+  // The five tenets of Taekwondo, as the school states them.
+  tenets: [
+    "Courtesy",
+    "Integrity",
+    "Perseverance",
+    "Self-Control",
+    "Indomitable Spirit",
+  ],
+  whyChooseUs: [
+    "Certified Kukkiwon Taekwondo school",
+    "Spacious, clean and safe facilities",
+    "Positive learning environment",
+    "Flexible class times",
+    "Special events throughout the year",
+    "Personal attention for every student",
+  ],
   trial: {
     headline: "4-Week Trial",
-    sub: "Unlimited classes + free full uniform",
+    price: 29,
+    priceLabel: "$29",
+    sub: "4 weeks of unlimited classes + a free full uniform",
     perks: [
       "Unlimited classes for 4 full weeks",
       "Free full uniform (dobok) included",
-      "No long-term commitment to start",
+      "Start any day — your 4 weeks begin at your first class",
       "Drop in on any class that fits your week",
+    ],
+    // Terms as stated by the school on its special-offer page.
+    terms: [
+      "Your 4 weeks don't start until you take your first class.",
+      "Start the same day you register, next month, or next year — there's no expiration on the day you start.",
+      "No fixed session dates: classes run continuously, six days a week.",
     ],
   },
 } as const;
@@ -39,95 +69,230 @@ export interface Program {
   id: string;
   name: string;
   ages: string;
-  emoji: string;
+  image: string;
+  classesPerWeek?: string;
   tagline: string;
   blurb: string;
   highlights: string[];
 }
 
+// Program copy follows the school's own descriptions on troymartialarts.net.
 export const PROGRAMS: Program[] = [
   {
     id: "kids-5-10",
-    name: "Little Champions",
+    name: "Kids",
     ages: "Ages 5–10",
-    emoji: "🥋",
-    tagline: "Confidence & focus that carries into school",
+    image: "/img/class-1.jpg",
+    classesPerWeek: "26 classes per week",
+    tagline: "Courtesy, patience, and constructive repetition",
     blurb:
-      "High-energy classes that channel your child's energy into focus, discipline, and self-confidence. Parents tell us their kids listen better, sleep better, and stand taller within weeks.",
+      "A customized curriculum that aligns with their physical abilities, emphasizing courtesy, patience, and the value of constructive repetition.",
     highlights: [
-      "4 belt-level class tracks so every child is challenged at their level",
-      "Discipline & respect built into every class",
-      "Fun, fast-paced drills — kids leave happy and exhausted",
+      "26 classes per week to fit around school and family",
+      "Four belt-level tracks so every child trains at their level",
+      "Unlimited classes — come as often as you like",
     ],
   },
   {
     id: "teens-11-15",
-    name: "Tweens & Teens",
+    name: "Kids",
     ages: "Ages 11–15",
-    emoji: "⚡",
-    tagline: "Strength, self-defense & real friendships",
+    image: "/img/class-2.jpg",
+    classesPerWeek: "25 classes per week",
+    tagline: "Focus, self-control, respect and self-confidence",
     blurb:
-      "Serious skill-building for a serious age. Teens develop practical self-defense, athletic conditioning, and the quiet confidence that comes from earning every belt.",
+      "Classes that help cultivate valuable skills that can last a lifetime: focus, self-control, respect for self and others, and self-confidence.",
     highlights: [
-      "Olympic-style sparring and cardio-focused sessions",
-      "Leadership pathways — top students assist younger classes",
-      "A positive peer group that keeps them coming back",
+      "25 classes per week, six days a week",
+      "Olympic-style sparring and conditioning",
+      "Kukkiwon-certified curriculum and ranking",
     ],
   },
   {
     id: "adults",
     name: "Adults",
     ages: "Ages 16+",
-    emoji: "💪",
-    tagline: "The workout you'll actually stick with",
+    image: "/img/class-3.jpg",
+    classesPerWeek: "24 classes per week",
+    tagline: "Self-defense, fitness, and a healthy outlet",
     blurb:
-      "Whether you're brand new, returning after 20 years, or chasing your black belt — adult classes deliver a full-body workout with a skill you keep forever. Unlimited classes, flexible times.",
+      "For those looking to enhance their self-defense abilities while providing a healthy outlet to let off steam and get in shape.",
     highlights: [
-      "Beginner-friendly — many adults start with zero experience",
-      "Stress relief, flexibility, and real self-defense",
-      "Train the same nights as your kids",
+      "24 classes per week — train on your schedule",
+      "Beginners and returning black belts both welcome",
+      "Train the same evenings as your kids",
     ],
   },
   {
     id: "family",
     name: "Family Classes",
     ages: "Ages 5 & up, together",
-    emoji: "👨‍👩‍👧‍👦",
-    tagline: "One schedule. One goal. Together.",
+    image: "/img/family.jpg",
+    classesPerWeek: "24 classes per week",
+    tagline: "Flexible scheduling for the whole family",
     blurb:
-      "Train side-by-side with your kids in dedicated family classes. It's quality time, shared goals, and the only activity where the whole family earns belts together.",
+      "Family classes offer flexible scheduling options, accommodating diverse preferences so the whole family can train together.",
     highlights: [
+      "24 classes per week for families",
       "Parents and kids on the mat at the same time",
-      "Shared milestones — test for belts as a family",
-      "The most popular way our families train",
+      "Test and earn belts together",
     ],
   },
   {
     id: "competition",
-    name: "Competition Team",
+    name: "Competition Teams",
     ages: "By invitation",
-    emoji: "🏆",
+    image: "/img/class-5.jpg",
     tagline: "Olympic-style Taekwondo at the next level",
     blurb:
-      "For students ready to compete, our Kukkiwon-certified curriculum and coaching staff prepare athletes for regional and national Olympic-style tournaments.",
+      "For students ready to compete, our Kukkiwon-certified curriculum and Team USA certified coaching staff prepare athletes for state and national Olympic-style tournaments.",
     highlights: [
-      "Kukkiwon-certified, Olympic-based curriculum",
-      "Tournament coaching and sparring strategy",
-      "Team culture that celebrates every athlete",
+      "Coached by multi-time Michigan state champions",
+      "Team USA Certified Associate Coaches",
+      "Kukkiwon and USAT recognised ranking",
     ],
   },
   {
     id: "summer-camp",
     name: "Summer Camp",
     ages: "Seasonal · Ages 5–15",
-    emoji: "☀️",
-    tagline: "The camp kids beg to come back to",
+    image: "/img/class-4.jpg",
+    tagline: "Structured, active days through the summer break",
     blurb:
-      "Full days of martial arts, games, and activities during summer break. A parent favorite — structured, active, and screen-free.",
+      "Full days of martial arts, games, and activities during summer break — structured, active, and screen-free.",
     highlights: [
       "Martial arts training every day",
-      "Games, activities & our famous annual picnic",
-      "Trusted by Troy families for years",
+      "Games, activities and special events",
+      "Runs through the summer school break",
+    ],
+  },
+];
+
+// ----- Instructors (from the school's staff page) -----
+
+export interface Instructor {
+  name: string;
+  rank: string;
+  role?: string;
+  credentials: string[];
+}
+
+/**
+ * All twelve instructors as listed on troymartialarts.net/staff.
+ * Every instructor is a Team USA Certified Associate Coach, a Team USA
+ * Certified Safesport Instructor, Red Cross certified in First Aid/AED/CPR/BBP,
+ * and has passed a national background check — so those four shared
+ * credentials live in SHARED_CREDENTIALS rather than repeating twelve times.
+ */
+export const SHARED_CREDENTIALS = [
+  "Team USA Certified Associate Coach",
+  "Team USA Certified Safesport Instructor",
+  "Red Cross Certified First Aid, AED/CPR/BBP",
+  "National Background Check",
+];
+
+export const INSTRUCTORS: Instructor[] = [
+  {
+    name: "Master Tammy Trudeau",
+    rank: "5th Dan Black Belt (Kukkiwon, USAT)",
+    role: "Owner",
+    credentials: ["Combative Techniques Certified, Troy Police"],
+  },
+  {
+    name: "Master Mark Jeffery",
+    rank: "5th Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. & M.S. Electrical Engineering, MIT",
+      "Retired Engineer, General Motors",
+    ],
+  },
+  {
+    name: "Master Mark Evans",
+    rank: "4th Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Mechanical Engineering, Carnegie Mellon",
+      "M.S. Mechanical Engineering, Univ. of Dayton",
+      "Senior Engineer, Ford Motor Company",
+      "2nd Degree Black Belt, Tang Soo Do",
+    ],
+  },
+  {
+    name: "Master David Lalain",
+    rank: "4th Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Chemistry, Michigan State University",
+      "Vice President, AIAG",
+    ],
+  },
+  {
+    name: "Mariska Goswami",
+    rank: "4th Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "Student, University of Pittsburgh",
+      "2-Time Taekwondo State Champion",
+    ],
+  },
+  {
+    name: "Edgar Terrazas Jaquez",
+    rank: "3rd Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Computer Science, Oakland University",
+      "2-Time Taekwondo State Champion, Michigan",
+    ],
+  },
+  {
+    name: "Coach Sadegh Arab",
+    rank: "2nd Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Neuroscience, University of Michigan",
+      "Doctor of Podiatric Medicine, Kent State Univ.",
+      "Surgeon, Advanced Foot Ankle and Wound Care",
+      "Past President, Univ. of Michigan Taekwondo Club",
+    ],
+  },
+  {
+    name: "Kristin Hockman",
+    rank: "2nd Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Biochemistry & M.S. Molecular Biology, University of Michigan",
+      "M.Ed. Elementary Teaching, Grand Canyon Univ.",
+      "5th Grade Teacher, Hazel Park Schools",
+      "2-Time Taekwondo State Champion, Michigan",
+    ],
+  },
+  {
+    name: "Raymond El-Khoury",
+    rank: "2nd Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Electrical Engineering, Lawrence Tech",
+      "Sales Professional, Aptiv",
+    ],
+  },
+  {
+    name: "Nathan Shaeff",
+    rank: "2nd Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "B.S. Mechanical Engineering, Kettering University",
+      "Design & Release Engineer, Ford Motor Co.",
+    ],
+  },
+  {
+    name: "Lonnie Adams",
+    rank: "1st Dan Black Belt (Kukkiwon, USAT)",
+    credentials: [
+      "Grievance/Appeals Coordinator, Blue Cross Blue Shield",
+      "4-Time Taekwondo State Champion, Michigan",
+    ],
+  },
+  {
+    name: "Mark Trudeau",
+    rank: "Instructor",
+    credentials: [
+      "B.S. Mathematics & B.S. Computer Science, Michigan Tech",
+      "M.S. Statistics, Michigan State University",
+      "Master Six Sigma Black Belt, Motorola University",
+      "Retired Quality Director, Eastman Kodak",
+      "Certified National Youth Sports Coach (NYSCA)",
     ],
   },
 ];

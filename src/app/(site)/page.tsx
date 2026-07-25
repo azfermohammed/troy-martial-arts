@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BIZ, PROGRAMS, REVIEWS } from "@/lib/data";
+import Image from "next/image";
+import { BIZ, INSTRUCTORS, PROGRAMS, REVIEWS } from "@/lib/data";
 import {
   BeltStripe,
   ButtonLink,
@@ -13,87 +14,76 @@ import {
 function Hero() {
   return (
     <section className="relative overflow-hidden bg-cream">
-      {/* soft decorative blobs */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-40 -top-40 h-[480px] w-[480px] rounded-full bg-gold/20 blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -bottom-48 -left-32 h-[420px] w-[420px] rounded-full bg-brand/10 blur-3xl"
-      />
-
-      <Container className="relative grid items-center gap-14 py-20 lg:grid-cols-[1.1fr_0.9fr] lg:py-28">
+      <Container className="relative grid items-center gap-14 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
         <div className="animate-rise">
-          <Eyebrow>🥋 Kukkiwon-Certified Taekwondo · Troy, MI</Eyebrow>
+          <Eyebrow>Kukkiwon-Certified Taekwondo · Troy, MI</Eyebrow>
           <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-            Confident kids.
+            Taekwondo &amp; Self Defense
             <br />
-            Strong families.
+            in Troy, Michigan
             <br />
             <span className="text-brand">Since 1980.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft/80">
-            Troy&apos;s most trusted martial arts school — {BIZ.yearsOpen} years,{" "}
-            {BIZ.studentsTaught} students, and one promise: your family leaves
-            every class more confident than they walked in.
+            {BIZ.yearsOpen} years on the corner of Crooks &amp; South Blvd,{" "}
+            {BIZ.studentsTaught} students instructed, and {BIZ.instructorCount}{" "}
+            certified instructors with {BIZ.combinedExperience} of combined
+            experience.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            <ButtonLink href="/contact">Start Your 4-Week Trial →</ButtonLink>
+            <ButtonLink href="/contact">
+              Start the {BIZ.trial.priceLabel} 4-Week Trial →
+            </ButtonLink>
             <ButtonLink href="/schedule" variant="secondary">
               See Class Schedule
             </ButtonLink>
           </div>
 
-          <div className="mt-8 flex items-center gap-3">
-            <Stars className="h-5 w-5" />
-            <p className="text-sm font-semibold text-ink">
-              {BIZ.rating} from {BIZ.reviewCount} Google reviews
-            </p>
+          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="flex items-center gap-3">
+              <Stars className="h-5 w-5" />
+              <p className="text-sm font-semibold text-ink">
+                {BIZ.rating} from {BIZ.reviewCount} Google reviews
+              </p>
+            </div>
+            <Image
+              src="/img/team-usa.jpg"
+              alt="Team USA affiliation"
+              width={494}
+              height={69}
+              className="h-6 w-auto opacity-80"
+            />
           </div>
         </div>
 
-        {/* Offer card composition */}
+        {/* Real class photography, with the offer priced honestly on top */}
         <div className="relative animate-rise" style={{ animationDelay: "0.15s" }}>
-          <div className="relative rounded-3xl bg-gradient-to-br from-brand to-brand-deep p-8 text-white shadow-pop sm:p-10">
-            <span className="inline-flex rounded-full bg-gold px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-ink">
-              Limited-time offer
-            </span>
-            <p className="mt-5 font-display text-4xl font-extrabold leading-tight">
-              {BIZ.trial.headline}
-            </p>
-            <p className="mt-1 text-lg font-semibold text-white/90">{BIZ.trial.sub}</p>
-            <ul className="mt-6 space-y-3">
-              {BIZ.trial.perks.map((perk) => (
-                <li key={perk} className="flex items-start gap-3 text-sm text-white/90">
-                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[11px] font-bold text-ink">
-                    ✓
-                  </span>
-                  {perk}
-                </li>
-              ))}
-            </ul>
-            <Link
-              href="/contact"
-              className="mt-8 block rounded-full bg-white py-3.5 text-center text-sm font-extrabold text-brand-deep transition-transform hover:-translate-y-0.5"
-            >
-              Claim the Trial
-            </Link>
+          <div className="overflow-hidden rounded-3xl border border-ink/10 shadow-lift">
+            <Image
+              src="/img/class-2.jpg"
+              alt="Young students sparring in protective gear at Troy Martial Arts"
+              width={1024}
+              height={683}
+              priority
+              className="h-[380px] w-full object-cover sm:h-[440px]"
+            />
           </div>
 
-          {/* floating proof chip */}
-          <div className="absolute -left-6 -top-5 hidden rounded-2xl bg-white px-5 py-3 shadow-lift sm:block">
-            <p className="font-display text-2xl font-extrabold text-ink">{BIZ.yearsOpen}</p>
-            <p className="text-xs font-semibold text-ink-soft/70">years in Troy</p>
-          </div>
-          <div className="absolute -bottom-5 -right-4 hidden rounded-2xl bg-white px-5 py-3 shadow-lift sm:block">
-            <p className="font-display text-2xl font-extrabold text-ink">{BIZ.studentsTaught}</p>
-            <p className="text-xs font-semibold text-ink-soft/70">students taught</p>
+          <div className="absolute -bottom-6 left-4 right-4 rounded-2xl bg-brand p-5 text-white shadow-pop sm:left-8 sm:right-8">
+            <div className="flex items-baseline gap-2">
+              <span className="font-display text-4xl font-extrabold leading-none">
+                {BIZ.trial.priceLabel}
+              </span>
+              <span className="font-display text-lg font-bold">
+                / {BIZ.trial.headline}
+              </span>
+            </div>
+            <p className="mt-1.5 text-sm font-semibold text-white/90">{BIZ.trial.sub}</p>
           </div>
         </div>
       </Container>
-      <BeltStripe className="h-2" />
+      <BeltStripe className="mt-10 h-2" />
     </section>
   );
 }
@@ -105,7 +95,7 @@ function TrustBar() {
         <Stat value={`${BIZ.rating}★`} label={`${BIZ.reviewCount} Google reviews`} />
         <Stat value={BIZ.instructorCount} label="certified instructors" />
         <Stat value={BIZ.classesPerWeek} label="classes every week" />
-        <Stat value="6 days" label="drop-in flexibility" />
+        <Stat value="6 days" label="open every week" />
       </Container>
     </section>
   );
@@ -119,24 +109,36 @@ function ProgramsSection() {
           center
           eyebrow="Programs"
           title="A class for every age — and every family"
-          sub="From 5-year-olds finding their focus to adults finding their edge, every program follows our Kukkiwon-certified, Olympic-based curriculum."
+          sub="Kids, teens, adults and whole families train on a Kukkiwon-certified, Olympic-based curriculum, six days a week."
         />
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PROGRAMS.map((p) => (
             <Link
               key={p.id}
               href={`/programs#${p.id}`}
-              className="group rounded-3xl border border-ink/8 bg-white p-7 shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
+              className="group overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
             >
-              <span className="text-4xl">{p.emoji}</span>
-              <p className="mt-4 text-xs font-bold uppercase tracking-widest text-brand">
-                {p.ages}
-              </p>
-              <h3 className="mt-1 font-display text-xl font-bold text-ink">{p.name}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft/75">{p.tagline}</p>
-              <p className="mt-4 text-sm font-bold text-brand opacity-0 transition-opacity group-hover:opacity-100">
-                Learn more →
-              </p>
+              <Image
+                src={p.image}
+                alt={`${p.name} — ${p.ages}`}
+                width={800}
+                height={500}
+                className="h-44 w-full object-cover"
+              />
+              <div className="p-7">
+                <p className="text-xs font-bold uppercase tracking-widest text-brand">
+                  {p.ages}
+                </p>
+                <h3 className="mt-1 font-display text-xl font-bold text-ink">{p.name}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-soft/75">
+                  {p.tagline}
+                </p>
+                {p.classesPerWeek && (
+                  <p className="mt-3 text-xs font-semibold text-ink-soft/60">
+                    {p.classesPerWeek}
+                  </p>
+                )}
+              </div>
             </Link>
           ))}
         </div>
@@ -145,60 +147,87 @@ function ProgramsSection() {
   );
 }
 
-const VALUE_DETAILS: Record<string, { emoji: string; copy: string }> = {
-  "Self-Confidence": {
-    emoji: "🦁",
-    copy: "Every belt earned is proof to your child that hard things are worth doing. Parents see the difference at school within weeks.",
-  },
-  Respect: {
-    emoji: "🙇",
-    copy: "Bowing in, listening first, lifting up teammates — respect is trained in every single class, not just talked about.",
-  },
-  Courtesy: {
-    emoji: "🤝",
-    copy: "Our students learn to lead with kindness. It shows — families from every background call this school home.",
-  },
-  Integrity: {
-    emoji: "🛡️",
-    copy: "Doing the right thing when nobody is watching. That's the black-belt standard we hold from day one.",
-  },
-};
-
-function ValuesSection() {
+function WhySection() {
   return (
     <section className="bg-ink py-20 text-white lg:py-24">
       <Container>
         <div className="grid items-start gap-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div>
-            <Eyebrow>Why families choose Troy</Eyebrow>
+            <Eyebrow>Why choose Troy Martial Arts</Eyebrow>
             <h2 className="mt-4 font-display text-3xl font-bold tracking-tight sm:text-4xl">
-              More than kicks and punches — life skills that stick
+              {BIZ.motto}
             </h2>
             <p className="mt-4 text-lg leading-relaxed text-white/70">{BIZ.mission}</p>
+
             <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-              <p className="text-sm leading-relaxed text-white/80">
-                &ldquo;My kids have never slept better since starting.&rdquo;
+              <p className="text-xs font-semibold uppercase tracking-wider text-gold">
+                The five tenets of Taekwondo
               </p>
-              <p className="mt-2 text-xs font-semibold uppercase tracking-wider text-gold">
-                — a Troy parent, Google review
+              <p className="mt-2 text-sm leading-relaxed text-white/80">
+                {BIZ.tenets.join(" · ")}
               </p>
             </div>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2">
-            {BIZ.values.map((v) => (
-              <div
-                key={v}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6 transition-colors hover:border-gold/40"
+
+          <ul className="grid gap-4 sm:grid-cols-2">
+            {BIZ.whyChooseUs.map((reason) => (
+              <li
+                key={reason}
+                className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm font-semibold leading-relaxed text-white/85 transition-colors hover:border-gold/40"
               >
-                <span className="text-3xl">{VALUE_DETAILS[v].emoji}</span>
-                <h3 className="mt-3 font-display text-lg font-bold text-gold">{v}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/70">
-                  {VALUE_DETAILS[v].copy}
-                </p>
-              </div>
+                {reason}
+              </li>
             ))}
-          </div>
+            <li className="rounded-2xl border border-white/10 bg-white/5 p-5 text-sm font-semibold leading-relaxed text-white/85 sm:col-span-2">
+              {BIZ.serviceArea}
+            </li>
+          </ul>
         </div>
+      </Container>
+    </section>
+  );
+}
+
+function InstructorsSection() {
+  return (
+    <section className="py-20 lg:py-24">
+      <Container>
+        <SectionHeading
+          center
+          eyebrow="Our instructors"
+          title={`${BIZ.instructorCount} certified instructors, ${BIZ.combinedExperience} combined`}
+          sub="Engineers, teachers, a surgeon and multi-time state champions — every one of them Kukkiwon and USAT ranked."
+        />
+
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {INSTRUCTORS.map((i) => (
+            <div
+              key={i.name}
+              className="rounded-2xl border border-ink/8 bg-white p-6 shadow-lift"
+            >
+              <h3 className="font-display text-base font-bold text-ink">{i.name}</h3>
+              {i.role && (
+                <p className="mt-0.5 text-xs font-bold uppercase tracking-wider text-brand">
+                  {i.role}
+                </p>
+              )}
+              <p className="mt-1 text-xs font-semibold text-ink-soft/70">{i.rank}</p>
+              <ul className="mt-3 space-y-1">
+                {i.credentials.map((c) => (
+                  <li key={c} className="text-xs leading-relaxed text-ink-soft/70">
+                    {c}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        <p className="mx-auto mt-8 max-w-2xl text-center text-xs leading-relaxed text-ink-soft/60">
+          Every instructor is also a Team USA Certified Associate Coach and Safesport
+          Instructor, Red Cross certified in First Aid/AED/CPR, and has passed a
+          national background check.
+        </p>
       </Container>
     </section>
   );
@@ -210,9 +239,9 @@ function ReviewsSection() {
       <Container>
         <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <SectionHeading
-            eyebrow="Real Google reviews"
-            title={`${BIZ.rating} stars. ${BIZ.reviewCount} reviews. One community.`}
-            sub="We didn't write these — Troy families did."
+            eyebrow="Google reviews"
+            title={`${BIZ.rating} stars from ${BIZ.reviewCount} reviews`}
+            sub="What Troy families say about training here."
           />
           <ButtonLink href="/reviews" variant="secondary" className="shrink-0">
             Read all reviews
@@ -244,31 +273,41 @@ function TrialCTA() {
   return (
     <section className="py-20 lg:py-24">
       <Container>
-        <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brand via-brand-dark to-brand-deep px-8 py-16 text-center text-white shadow-pop sm:px-16">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -right-20 -top-20 h-72 w-72 rounded-full bg-gold/20 blur-3xl"
-          />
-          <p className="text-xs font-extrabold uppercase tracking-[0.3em] text-gold">
-            The first kick is the hardest — we make it easy
-          </p>
-          <h2 className="mx-auto mt-4 max-w-2xl font-display text-3xl font-extrabold leading-tight sm:text-5xl">
-            4 weeks. Unlimited classes. Free uniform.
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/85">
-            Try any class that fits your week — no long-term commitment. See why
-            648 families rated us {BIZ.rating} stars.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/contact" variant="gold">
-              Claim Your Trial
-            </ButtonLink>
-            <a
-              href={BIZ.phoneHref}
-              className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 px-7 py-3 text-sm font-bold text-white transition-colors hover:border-white/70"
-            >
-              📞 {BIZ.phone}
-            </a>
+        <div className="overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brand via-brand-dark to-brand-deep px-8 py-14 text-white shadow-pop sm:px-14">
+          <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.8fr]">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.3em] text-gold">
+                Special offer
+              </p>
+              <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl">
+                {BIZ.trial.priceLabel} — 4 weeks of unlimited classes,
+                <br className="hidden sm:block" /> plus a free full uniform.
+              </h2>
+              <p className="mt-4 max-w-xl text-lg text-white/85">{BIZ.tagline}</p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-4">
+                <ButtonLink href="/contact" variant="gold">
+                  Claim the {BIZ.trial.priceLabel} Trial
+                </ButtonLink>
+                <a
+                  href={BIZ.phoneHref}
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-white/30 px-7 py-3 text-sm font-bold text-white transition-colors hover:border-white/70"
+                >
+                  Call {BIZ.phone}
+                </a>
+              </div>
+            </div>
+
+            <ul className="space-y-3 rounded-2xl border border-white/15 bg-white/5 p-6">
+              {BIZ.trial.terms.map((term) => (
+                <li key={term} className="flex items-start gap-3 text-sm text-white/85">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold text-[11px] font-bold text-ink">
+                    ✓
+                  </span>
+                  {term}
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       </Container>
@@ -284,29 +323,33 @@ function LocationSection() {
           <SectionHeading
             eyebrow="Visit the dojang"
             title="Easy to find. Easy to fit into your week."
-            sub="Right at the corner of Crooks Rd & South Blvd in the Rite-Aid Plaza — with classes six days a week, there's always a time that works."
+            sub={`At the corner of Crooks Rd & South Blvd in the Rite-Aid Plaza, open ${BIZ.daysPerWeek}.`}
           />
-          <dl className="mt-8 space-y-4 text-sm">
-            <div className="flex gap-3">
-              <dt className="font-bold text-ink">📍</dt>
-              <dd className="text-ink-soft">
+          <dl className="mt-8 space-y-5 text-sm">
+            <div>
+              <dt className="text-xs font-bold uppercase tracking-wider text-ink-soft/60">
+                Address
+              </dt>
+              <dd className="mt-1 text-ink-soft">
                 {BIZ.address}
                 <span className="block text-ink-soft/60">{BIZ.addressNote}</span>
               </dd>
             </div>
-            <div className="flex gap-3">
-              <dt className="font-bold text-ink">📞</dt>
-              <dd>
+            <div>
+              <dt className="text-xs font-bold uppercase tracking-wider text-ink-soft/60">
+                Phone
+              </dt>
+              <dd className="mt-1">
                 <a href={BIZ.phoneHref} className="font-semibold text-brand hover:underline">
                   {BIZ.phone}
                 </a>
               </dd>
             </div>
-            <div className="flex gap-3">
-              <dt className="font-bold text-ink">🕐</dt>
-              <dd className="text-ink-soft">
-                Classes Monday–Saturday · afternoons, evenings & Saturday mornings
-              </dd>
+            <div>
+              <dt className="text-xs font-bold uppercase tracking-wider text-ink-soft/60">
+                Hours
+              </dt>
+              <dd className="mt-1 text-ink-soft">{BIZ.hours}</dd>
             </div>
           </dl>
           <div className="mt-8">
@@ -335,7 +378,8 @@ export default function HomePage() {
       <Hero />
       <TrustBar />
       <ProgramsSection />
-      <ValuesSection />
+      <WhySection />
+      <InstructorsSection />
       <ReviewsSection />
       <TrialCTA />
       <LocationSection />

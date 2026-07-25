@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PROGRAMS } from "@/lib/data";
+import { BIZ, PROGRAMS } from "@/lib/data";
 
 interface Lead {
   name: string;
@@ -43,9 +43,11 @@ export function TrialForm() {
   if (sent) {
     return (
       <div className="rounded-3xl border border-green-200 bg-green-50 p-10 text-center">
-        <span className="text-5xl">🎉</span>
+        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-600 text-2xl font-bold text-white">
+          ✓
+        </span>
         <h3 className="mt-4 font-display text-2xl font-bold text-ink">
-          You&apos;re on the mat!
+          Request received
         </h3>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-soft">
           We received your request. We&apos;ll call you within one business day
@@ -122,7 +124,7 @@ export function TrialForm() {
         type="submit"
         className="w-full rounded-full bg-brand py-4 text-sm font-extrabold text-white shadow-pop transition-all hover:-translate-y-0.5 hover:bg-brand-dark"
       >
-        Request My 4-Week Trial →
+        Request My {BIZ.trial.priceLabel} 4-Week Trial →
       </button>
       <p className="text-center text-xs text-ink-soft/50">
         No spam, no obligation — we&apos;ll just call to set up your first class.

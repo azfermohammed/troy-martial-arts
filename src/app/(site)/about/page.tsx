@@ -71,12 +71,24 @@ export default function AboutPage() {
             <p className="mt-3 text-sm font-semibold text-ink-soft/60">
               — a first-class parent, Google review
             </p>
-            <div className="mt-6 grid gap-4 border-t border-ink/5 pt-6 text-sm text-ink-soft sm:grid-cols-2">
-              <p>🥋 Kukkiwon-certified Taekwondo school</p>
-              <p>🏅 Olympic-based curriculum</p>
-              <p>👥 {BIZ.instructorCount} professional certified instructors</p>
-              <p>🧒 Assistant program — top students learn to lead</p>
-            </div>
+            <ul className="mt-6 grid gap-3 border-t border-ink/5 pt-6 text-sm text-ink-soft sm:grid-cols-2">
+              <li className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                Kukkiwon-certified Taekwondo school
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                Olympic-based curriculum
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                {BIZ.instructorCount} professional certified instructors
+              </li>
+              <li className="flex items-start gap-2.5">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" />
+                Assistant program — top students learn to lead
+              </li>
+            </ul>
           </div>
         </Container>
       </section>
@@ -124,9 +136,11 @@ export default function AboutPage() {
             {BIZ.trial.headline.toLowerCase()} today.
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href="/contact">Start Free Trial</ButtonLink>
+            <ButtonLink href="/contact">
+              Start the {BIZ.trial.priceLabel} Trial
+            </ButtonLink>
             <ButtonLink href={BIZ.phoneHref} variant="secondary">
-              📞 {BIZ.phone}
+              Call {BIZ.phone}
             </ButtonLink>
           </div>
         </Container>

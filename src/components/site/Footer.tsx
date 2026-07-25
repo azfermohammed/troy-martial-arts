@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { BIZ, NAV_LINKS, PROGRAMS } from "@/lib/data";
 import { BeltStripe, Container } from "@/components/ui";
 
@@ -8,11 +9,21 @@ export function Footer() {
       <BeltStripe className="h-2" />
       <Container className="grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="font-display text-xl font-extrabold">Troy Martial Arts</p>
-          <p className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-gold">
-            Kukkiwon-Certified Taekwondo
+          {/* Logo art is blue on transparent, so it sits on a white chip here */}
+          <span className="inline-flex rounded-xl bg-white px-3 py-2">
+            <Image
+              src="/img/tma-logo-alt.png"
+              alt="Troy Martial Arts — Taekwondo &amp; Self Defense"
+              width={1682}
+              height={592}
+              className="h-9 w-auto"
+            />
+          </span>
+          <p className="mt-3 text-xs font-bold uppercase tracking-[0.2em] text-gold">
+            Kukkiwon-Certified Taekwondo · Since {BIZ.founded}
           </p>
           <p className="mt-4 text-sm leading-relaxed text-white/70">{BIZ.mission}</p>
+          <p className="mt-4 text-sm text-white/70">{BIZ.hours}</p>
         </div>
 
         <div>

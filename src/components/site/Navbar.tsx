@@ -1,23 +1,24 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { BIZ, NAV_LINKS } from "@/lib/data";
 
 function Logo() {
   return (
-    <Link href="/" className="flex items-center gap-2.5" aria-label="Troy Martial Arts home">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold font-display text-sm font-extrabold tracking-tight text-ink shadow-lift">
-        TMA
-      </span>
-      <span className="leading-tight">
-        <span className="block font-display text-lg font-extrabold tracking-tight text-ink">
-          Troy Martial Arts
-        </span>
-        <span className="block text-[10px] font-bold uppercase tracking-[0.2em] text-brand">
-          Taekwondo · Since 1980
-        </span>
+    <Link href="/" className="flex items-center gap-3" aria-label="Troy Martial Arts home">
+      <Image
+        src="/img/tma-logo-alt.png"
+        alt="Troy Martial Arts — Taekwondo &amp; Self Defense"
+        width={1682}
+        height={592}
+        priority
+        className="h-11 w-auto"
+      />
+      <span className="hidden text-[10px] font-bold uppercase tracking-[0.2em] text-brand sm:block">
+        Since 1980
       </span>
     </Link>
   );
@@ -59,7 +60,7 @@ export function Navbar() {
             href="/contact"
             className="rounded-full bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-pop transition-all hover:-translate-y-0.5 hover:bg-brand-dark"
           >
-            Start Free Trial
+            {BIZ.trial.priceLabel} · 4-Week Trial
           </Link>
         </div>
 
@@ -103,7 +104,7 @@ export function Navbar() {
             onClick={() => setOpen(false)}
             className="mt-3 block rounded-full bg-brand px-5 py-3 text-center text-base font-bold text-white shadow-pop"
           >
-            Start Free Trial
+            {BIZ.trial.priceLabel} · 4-Week Trial
           </Link>
           <a
             href={BIZ.phoneHref}
