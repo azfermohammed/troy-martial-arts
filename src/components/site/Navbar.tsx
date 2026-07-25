@@ -5,12 +5,13 @@ import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { BIZ, NAV_LINKS } from "@/lib/data";
+import { asset } from "@/lib/assetPath";
 
 function Logo() {
   return (
     <Link href="/" className="flex items-center gap-3" aria-label="Troy Martial Arts home">
       <Image
-        src="/img/tma-logo-alt.png"
+        src={asset("/img/tma-logo-alt.png")}
         alt="Troy Martial Arts — Taekwondo &amp; Self Defense"
         width={1682}
         height={592}

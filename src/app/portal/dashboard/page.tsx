@@ -1,13 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { usePortal } from "@/lib/portal/store";
-import { Card, PageHeader, StatCard, StatusBadge } from "@/components/portal/ui";
+import { usePortal, PORTAL_BELTS } from "@/lib/portal/store";
+import {
+  BeltBadge,
+  Card,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from "@/components/portal/ui";
 import { Icon, type IconName } from "@/components/portal/icons";
-import { PORTAL_BELTS } from "@/lib/portal/store";
+import { projectPromotion, PROMOTION_RULES } from "@/lib/portal/promotion";
 
 const daysAgo = (n: number) =>
   new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
+
+const fmtDate = (d: string) =>
+  new Date(`${d}T00:00:00`).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
 const QUICK_ACTIONS: { href: string; icon: IconName; title: string; sub: string }[] = [
   {
@@ -25,7 +38,195 @@ const QUICK_ACTIONS: { href: string; icon: IconName; title: string; sub: string 
   { href: "/portal/payments", icon: "card", title: "Collect payments", sub: "" },
 ];
 
-export default function DashboardPage() {
+/* ------------------------------------------------------------------ */
+/* Personal view — every non-admin role                                */
+/* ------------------------------------------------------------------ */
+
+function PersonalDashboard() {
+  const { user, data } = usePortal();
+  const { students, attendance } = data;
+
+  const me = user?.studentId
+    ? students.find((s) => s.id === user.studentId)
+    : undefined;
+
+  const myAttendance = me
+    ? attendance
+        .filter((a) => a.studentId === me.id)
+        .sort((a, b) => b.date.localeCompare(a.date))
+    : [];
+
+  const present = myAttendance.filter((a) => a.present);
+
+  // Staff without a linked student record still have classes they run
+  const myClasses = Object.entries(data.staffing).filter(
+    ([, s]) => user && (s.leads.includes(user.id) || s.helpers.includes(user.id))
+  );
+
+  const projection =
+    me &&
+    projectPromotion({
+      currentBelt: me.belt,
+      belts: PORTAL_BELTS,
+      // Student records have no lastPromotionDate, so joinDate is the only
+      // available rank-start proxy. Adding that field would make this exact.
+      inRankSince: me.joinDate,
+      attendanceDates: present.map((a) => a.date),
+    });
+
+  return (
+    <div>
+      <PageHeader
+        title={`Welcome back, ${user?.name.split(" ")[0] ?? "there"}`}
+        sub={me ? "Your classes and belt progress." : "Your classes at the dojang."}
+      />
+
+      {me && projection && (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <Card className="p-5">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted">
+              Current belt
+            </p>
+            <div className="mt-3">
+              <BeltBadge belt={me.belt} />
+            </div>
+          </Card>
+          <StatCard
+            label="Classes attended"
+            value={String(present.length)}
+            hint={`${myAttendance.length - present.length} missed`}
+          />
+          <StatCard
+            label={`Toward ${projection.nextBelt ?? "next rank"}`}
+            value={`${projection.classesAttended}/${projection.classesRequired}`}
+            hint={`${Math.round(projection.progress * 100)}% of classes logged`}
+          />
+          <StatCard
+            label="Projected promotion"
+            value={
+              projection.eligibleNow
+                ? "Eligible"
+                : projection.projectedDate
+                  ? fmtDate(projection.projectedDate)
+                  : "Top rank"
+            }
+            hint="estimated — confirm with your instructor"
+            accent={projection.eligibleNow ? "text-green-700" : "text-graphite"}
+          />
+        </div>
+      )}
+
+      {me && projection?.nextBelt && (
+        <Card className="mt-6 p-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="text-lg font-semibold tracking-tight text-graphite">
+              Progress to {projection.nextBelt}
+            </h2>
+            <p className="text-xs text-muted">
+              {PROMOTION_RULES.classesRequired} classes ·{" "}
+              {PROMOTION_RULES.minWeeksInRank} weeks minimum in rank
+            </p>
+          </div>
+          <div className="mt-4 h-3 overflow-hidden rounded-full bg-canvas ring-1 ring-edge">
+            <div
+              className="h-full rounded-full bg-graphite transition-all"
+              style={{ width: `${projection.progress * 100}%` }}
+            />
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            {projection.eligibleNow ? (
+              <>You&apos;ve met the requirements — ask about testing.</>
+            ) : (
+              <>
+                {projection.classesRequired - projection.classesAttended} more
+                classes at the recommended{" "}
+                {PROMOTION_RULES.recommendedClassesPerWeek} per week.
+              </>
+            )}
+          </p>
+        </Card>
+      )}
+
+      {myClasses.length > 0 && (
+        <Card className="mt-6 p-6">
+          <h2 className="text-lg font-semibold tracking-tight text-graphite">
+            Classes you teach
+          </h2>
+          <ul className="mt-4 space-y-2">
+            {myClasses.map(([classId, s]) => (
+              <li
+                key={classId}
+                className="flex items-center justify-between gap-3 rounded-lg border border-edge px-4 py-2.5 text-sm"
+              >
+                <span className="font-medium text-graphite">{classId}</span>
+                <span className="text-xs text-muted">
+                  {user && s.leads.includes(user.id) ? "Lead" : "Helper"}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      <div className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold tracking-tight text-graphite">
+          Every class you&apos;ve attended
+        </h2>
+        <Card className="overflow-x-auto">
+          {myAttendance.length === 0 ? (
+            <p className="px-5 py-10 text-center text-sm text-muted">
+              {me
+                ? "No classes recorded yet."
+                : "Your account isn't linked to a student record, so there's no attendance history to show."}
+            </p>
+          ) : (
+            <table className="w-full min-w-[420px] text-left text-sm">
+              <thead>
+                <tr className="border-b border-edge text-xs uppercase tracking-wider text-muted">
+                  <th className="px-5 py-3.5 font-semibold">Date</th>
+                  <th className="px-4 py-3.5 font-semibold">Class</th>
+                  <th className="px-4 py-3.5 font-semibold">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myAttendance.map((a) => (
+                  <tr
+                    key={a.id}
+                    className="border-b border-edge last:border-0 hover:bg-canvas"
+                  >
+                    <td className="px-5 py-3 text-muted">{fmtDate(a.date)}</td>
+                    <td className="px-4 py-3 font-medium text-graphite">
+                      {a.classLabel}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StatusBadge status={a.present ? "Present" : "Absent"} />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </Card>
+      </div>
+
+      <div className="mt-8">
+        <Link
+          href="/portal/schedule"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-edge px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-graphite/25 hover:text-graphite"
+        >
+          <Icon name="calendar" size={15} />
+          See the full class calendar
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Admin view — business figures, admin accounts only                  */
+/* ------------------------------------------------------------------ */
+
+function AdminDashboard() {
   const { user, data } = usePortal();
   const { students, payments, attendance } = data;
 
@@ -45,15 +246,12 @@ export default function DashboardPage() {
     ? Math.round((weekPresent / weekRecords.length) * 100)
     : 0;
 
-  // Belt distribution across active students
   const beltCounts = PORTAL_BELTS.map((belt) => ({
     belt,
     count: active.filter((s) => s.belt === belt).length,
   })).filter((b) => b.count > 0);
   const maxCount = Math.max(1, ...beltCounts.map((b) => b.count));
 
-  // Recent activity: merge attendance + payments, newest first.
-  // Icon tone stays semantic — green attended, red missed, neutral payment.
   const activity: { date: string; icon: IconName; tone: string; text: string }[] = [
     ...attendance.map((a) => ({
       date: a.date,
@@ -108,7 +306,6 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        {/* Belt distribution */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold tracking-tight text-graphite">
             Belt distribution
@@ -133,7 +330,6 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        {/* Recent activity */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold tracking-tight text-graphite">
             Recent activity
@@ -150,7 +346,6 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Quick actions */}
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {QUICK_ACTIONS.map((q) => (
           <Link
@@ -173,7 +368,6 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Overdue callout — semantic red, it's a warning */}
       {overdueCount > 0 && (
         <Card className="mt-8 border-red-200 bg-red-50 p-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -198,11 +392,13 @@ export default function DashboardPage() {
           </div>
         </Card>
       )}
-
-      <p className="mt-10 text-center text-xs text-muted">
-        Demo mode — sample data stored on this device. <StatusBadge status="Active" /> badges
-        and stats update live as you make changes.
-      </p>
     </div>
   );
+}
+
+export default function DashboardPage() {
+  const { user } = usePortal();
+  // Financial and roster-wide data is admin-only; everyone else gets their own
+  // classes and belt progress.
+  return user?.role === "admin" ? <AdminDashboard /> : <PersonalDashboard />;
 }

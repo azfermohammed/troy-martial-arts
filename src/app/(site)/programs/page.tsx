@@ -8,6 +8,7 @@ import {
   Eyebrow,
   SectionHeading,
 } from "@/components/ui";
+import { asset } from "@/lib/assetPath";
 
 export const metadata: Metadata = {
   title: "Programs — Kids, Teens, Adults & Family Taekwondo",
@@ -66,7 +67,7 @@ export default function ProgramsPage() {
               </div>
               <div className="overflow-hidden rounded-[2.5rem] border border-ink/10 shadow-lift">
                 <Image
-                  src={p.image}
+                  src={asset(p.image)}
                   alt={`${p.name} — ${p.ages} at Troy Martial Arts`}
                   width={1024}
                   height={683}

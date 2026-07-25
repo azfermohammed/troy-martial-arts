@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { BIZ, NAV_LINKS, PROGRAMS } from "@/lib/data";
 import { BeltStripe, Container } from "@/components/ui";
+import { asset } from "@/lib/assetPath";
 
 export function Footer() {
   return (
@@ -12,7 +13,7 @@ export function Footer() {
           {/* Logo art is blue on transparent, so it sits on a white chip here */}
           <span className="inline-flex rounded-xl bg-white px-3 py-2">
             <Image
-              src="/img/tma-logo-alt.png"
+              src={asset("/img/tma-logo-alt.png")}
               alt="Troy Martial Arts — Taekwondo &amp; Self Defense"
               width={1682}
               height={592}

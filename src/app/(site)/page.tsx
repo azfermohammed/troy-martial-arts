@@ -10,6 +10,7 @@ import {
   Stars,
   Stat,
 } from "@/components/ui";
+import { asset } from "@/lib/assetPath";
 
 function Hero() {
   return (
@@ -48,7 +49,7 @@ function Hero() {
               </p>
             </div>
             <Image
-              src="/img/team-usa.jpg"
+              src={asset("/img/team-usa.jpg")}
               alt="Team USA affiliation"
               width={494}
               height={69}
@@ -61,7 +62,7 @@ function Hero() {
         <div className="relative animate-rise" style={{ animationDelay: "0.15s" }}>
           <div className="overflow-hidden rounded-3xl border border-ink/10 shadow-lift">
             <Image
-              src="/img/class-2.jpg"
+              src={asset("/img/class-2.jpg")}
               alt="Young students sparring in protective gear at Troy Martial Arts"
               width={1024}
               height={683}
@@ -119,7 +120,7 @@ function ProgramsSection() {
               className="group overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
             >
               <Image
-                src={p.image}
+                src={asset(p.image)}
                 alt={`${p.name} — ${p.ages}`}
                 width={800}
                 height={500}
