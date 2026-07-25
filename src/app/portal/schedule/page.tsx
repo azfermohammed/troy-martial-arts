@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AGE_GROUPS, LEVEL_COLORS, SCHEDULE } from "@/lib/data";
 import { Card, PageHeader } from "@/components/portal/ui";
+import { Icon } from "@/components/portal/icons";
 
 export default function PortalSchedulePage() {
   return (
@@ -13,9 +14,10 @@ export default function PortalSchedulePage() {
         action={
           <Link
             href="/schedule"
-            className="rounded-full border border-ink/15 px-5 py-2.5 text-sm font-bold text-ink-soft hover:border-ink/40"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-edge px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-graphite/25 hover:text-graphite"
           >
-            View public page ↗
+            View public page
+            <Icon name="arrowRight" size={15} />
           </Link>
         }
       />
@@ -23,25 +25,28 @@ export default function PortalSchedulePage() {
       <div className="space-y-8">
         {AGE_GROUPS.map((group) => (
           <section key={group}>
-            <h2 className="mb-3 font-display text-lg font-extrabold text-ink">
+            <h2 className="mb-3 text-lg font-semibold tracking-tight text-graphite">
               {group}
             </h2>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
               {SCHEDULE.filter((c) => c.group === group).map((c) => (
                 <Card key={c.id} className="p-5">
+                  {/* Level colour is semantic (class difficulty), so it stays */}
                   <span
                     className={`inline-block rounded-full border px-3 py-1 text-xs font-bold ${LEVEL_COLORS[c.level]}`}
                   >
                     {c.level}
                   </span>
-                  <p className="mt-2 text-xs font-semibold text-ink-soft/60">{c.belts}</p>
+                  <p className="mt-2 text-xs font-medium text-muted">{c.belts}</p>
                   <ul className="mt-3 space-y-1.5">
                     {c.blocks.map((b, i) => (
-                      <li key={i} className="text-xs text-ink-soft">
-                        <span className="font-bold text-ink">{b.days.join("/")}</span>{" "}
+                      <li key={i} className="text-xs text-muted">
+                        <span className="font-semibold text-graphite">
+                          {b.days.join("/")}
+                        </span>{" "}
                         {b.slot}
                         {b.note && (
-                          <span className="ml-1 rounded-full bg-cream px-1.5 py-0.5 text-[10px] font-bold uppercase text-brand-deep">
+                          <span className="ml-1 rounded-full border border-edge bg-canvas px-1.5 py-0.5 text-[10px] font-semibold uppercase text-muted">
                             {b.note}
                           </span>
                         )}

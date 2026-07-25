@@ -19,6 +19,19 @@
 
   --shadow-lift: 0 12px 32px -12px rgb(16 31 56 / 0.18);
   --shadow-pop: 0 24px 60px -20px rgb(215 38 61 / 0.35);
+
+  /* Portal surface system — neutral warm-grey admin chrome.
+     Deliberately separate from the brand palette above: the marketing site
+     keeps red/gold/navy, the portal reads as a quiet light admin tool.
+     Semantic colour (green paid, red overdue, belt ranks) layers on top. */
+  --color-canvas: #faf9f7;
+  --color-panel: #ffffff;
+  --color-edge: #e7e4de;
+  --color-muted: #6f6b64;
+  --color-graphite: #1c1a17;
+
+  --shadow-card: 0 1px 2px 0 rgb(28 26 23 / 0.05), 0 1px 3px 0 rgb(28 26 23 / 0.04);
+  --shadow-tab: 0 1px 2px 0 rgb(28 26 23 / 0.08);
 }
 
 html {

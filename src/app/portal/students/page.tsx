@@ -17,6 +17,7 @@ import {
   PrimaryButton,
   StatusBadge,
 } from "@/components/portal/ui";
+import { Icon } from "@/components/portal/icons";
 
 type Tab = "All" | "Assistants" | "Inactive";
 
@@ -113,20 +114,23 @@ function StudentsInner() {
               setShowForm(true);
             }}
           >
-            + Add student
+            <Icon name="plus" size={15} />
+            Add student
           </PrimaryButton>
         }
       />
 
       {/* Filters */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 rounded-full bg-white p-1 shadow-lift">
+        <div className="flex gap-1 rounded-lg border border-edge bg-panel p-1 shadow-tab">
           {(["All", "Assistants", "Inactive"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
-                tab === t ? "bg-brand text-white" : "text-ink-soft hover:bg-ink/5"
+              className={`rounded-md px-4 py-2 text-xs font-semibold transition-colors ${
+                tab === t
+                  ? "bg-graphite text-white"
+                  : "text-muted hover:bg-canvas hover:text-graphite"
               }`}
             >
               {t}
@@ -144,42 +148,45 @@ function StudentsInner() {
       <Card className="overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
-            <tr className="border-b border-ink/8 text-xs uppercase tracking-wider text-ink-soft/60">
-              <th className="px-5 py-3.5 font-bold">Student</th>
-              <th className="px-4 py-3.5 font-bold">Belt</th>
-              <th className="px-4 py-3.5 font-bold">Program</th>
-              <th className="px-4 py-3.5 font-bold">Status</th>
-              <th className="px-4 py-3.5 font-bold">Payments</th>
-              <th className="px-4 py-3.5 text-right font-bold">Actions</th>
+            <tr className="border-b border-edge text-xs uppercase tracking-wider text-muted">
+              <th className="px-5 py-3.5 font-semibold">Student</th>
+              <th className="px-4 py-3.5 font-semibold">Belt</th>
+              <th className="px-4 py-3.5 font-semibold">Program</th>
+              <th className="px-4 py-3.5 font-semibold">Status</th>
+              <th className="px-4 py-3.5 font-semibold">Payments</th>
+              <th className="px-4 py-3.5 text-right font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-10 text-center text-ink-soft/50">
+                <td colSpan={6} className="px-5 py-10 text-center text-muted">
                   No students match.
                 </td>
               </tr>
             )}
             {filtered.map((s) => (
-              <tr key={s.id} className="border-b border-ink/5 last:border-0 hover:bg-cream/60">
+              <tr
+                key={s.id}
+                className="border-b border-edge last:border-0 hover:bg-canvas"
+              >
                 <td className="px-5 py-3.5">
-                  <p className="font-bold text-ink">
+                  <p className="font-semibold text-graphite">
                     {s.name}
                     {s.isAssistant && (
-                      <span className="ml-2 rounded-full bg-gold-soft px-2 py-0.5 text-[10px] font-extrabold uppercase text-brand-deep">
+                      <span className="ml-2 rounded-full bg-canvas px-2 py-0.5 text-[10px] font-bold uppercase text-muted ring-1 ring-edge">
                         Assistant
                       </span>
                     )}
                   </p>
-                  <p className="text-xs text-ink-soft/60">
+                  <p className="text-xs text-muted">
                     Age {s.age} · {s.email}
                   </p>
                 </td>
                 <td className="px-4 py-3.5">
                   <BeltBadge belt={s.belt} />
                 </td>
-                <td className="px-4 py-3.5 text-ink-soft">{s.group}</td>
+                <td className="px-4 py-3.5 text-muted">{s.group}</td>
                 <td className="px-4 py-3.5">
                   <StatusBadge status={s.status} />
                 </td>
@@ -191,22 +198,24 @@ function StudentsInner() {
                     <button
                       onClick={() => promote(s)}
                       title="Promote to next belt"
-                      className="rounded-full border border-ink/10 px-3 py-1.5 text-xs font-bold text-ink-soft hover:border-gold hover:text-brand-deep"
+                      className="inline-flex items-center gap-1 rounded-lg border border-edge px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-graphite/25 hover:text-graphite"
                     >
-                      ⬆ Belt
+                      <Icon name="arrowUp" size={13} />
+                      Belt
                     </button>
                     <button
                       onClick={() => {
                         setEditing(s);
                         setShowForm(true);
                       }}
-                      className="rounded-full border border-ink/10 px-3 py-1.5 text-xs font-bold text-ink-soft hover:border-ink/30"
+                      className="rounded-lg border border-edge px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:border-graphite/25 hover:text-graphite"
                     >
                       Edit
                     </button>
+                    {/* Destructive — stays red */}
                     <button
                       onClick={() => setConfirmDelete(s)}
-                      className="rounded-full border border-red-200 px-3 py-1.5 text-xs font-bold text-red-600 hover:bg-red-50"
+                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-50"
                     >
                       Delete
                     </button>
@@ -230,11 +239,13 @@ function StudentsInner() {
         <form onSubmit={handleSubmit} className="space-y-4" key={editing?.id ?? "new"}>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Full name *</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">
+                Full name *
+              </label>
               <input name="name" required defaultValue={formDefaults.name} className={inputCls} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Age *</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Age *</label>
               <input
                 name="age"
                 type="number"
@@ -246,7 +257,7 @@ function StudentsInner() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Belt</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Belt</label>
               <select name="belt" defaultValue={formDefaults.belt} className={inputCls}>
                 {PORTAL_BELTS.map((b) => (
                   <option key={b}>{b}</option>
@@ -254,7 +265,7 @@ function StudentsInner() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Program</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Program</label>
               <select name="group" defaultValue={formDefaults.group} className={inputCls}>
                 {AGE_GROUPS.map((g) => (
                   <option key={g}>{g}</option>
@@ -262,15 +273,15 @@ function StudentsInner() {
               </select>
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Phone</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Phone</label>
               <input name="phone" defaultValue={formDefaults.phone} className={inputCls} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Email</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Email</label>
               <input name="email" type="email" defaultValue={formDefaults.email} className={inputCls} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Join date</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Join date</label>
               <input
                 name="joinDate"
                 type="date"
@@ -279,19 +290,19 @@ function StudentsInner() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Status</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">Status</label>
               <select name="status" defaultValue={formDefaults.status} className={inputCls}>
                 <option>Active</option>
                 <option>Inactive</option>
               </select>
             </div>
           </div>
-          <label className="flex items-center gap-2 text-sm font-semibold text-ink">
+          <label className="flex items-center gap-2 text-sm font-medium text-graphite">
             <input
               type="checkbox"
               name="isAssistant"
               defaultChecked={formDefaults.isAssistant}
-              className="h-4 w-4 accent-brand"
+              className="h-4 w-4 accent-graphite"
             />
             Class assistant
           </label>
@@ -307,14 +318,14 @@ function StudentsInner() {
         title="Delete student?"
         onClose={() => setConfirmDelete(null)}
       >
-        <p className="text-sm text-ink-soft">
-          This removes <strong>{confirmDelete?.name}</strong> along with their
-          payments and attendance history. This can&apos;t be undone.
+        <p className="text-sm text-muted">
+          This removes <strong className="text-graphite">{confirmDelete?.name}</strong> along
+          with their payments and attendance history. This can&apos;t be undone.
         </p>
         <div className="mt-6 flex justify-end gap-3">
           <button
             onClick={() => setConfirmDelete(null)}
-            className="rounded-full border border-ink/15 px-5 py-2.5 text-sm font-bold text-ink-soft"
+            className="rounded-lg border border-edge px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-graphite/25 hover:text-graphite"
           >
             Cancel
           </button>
@@ -323,7 +334,7 @@ function StudentsInner() {
               if (confirmDelete) deleteStudent(confirmDelete.id);
               setConfirmDelete(null);
             }}
-            className="rounded-full bg-red-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-red-700"
+            className="rounded-lg bg-red-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-700"
           >
             Delete
           </button>
