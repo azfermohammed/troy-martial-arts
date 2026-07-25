@@ -11,6 +11,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import type { AgeGroup } from "@/lib/data";
@@ -227,34 +228,59 @@ interface PortalCtx {
 
 const Ctx = createContext<PortalCtx | null>(null);
 
-export function PortalProvider({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(false);
-  const [user, setUser] = useState<PortalUser | null>(null);
-  const [data, setData] = useState<PortalData>(SEED);
+/**
+ * Reads persisted state during render. Returns null on the server and whenever
+ * storage is empty, unavailable, or holds something that isn't the shape we
+ * expect — callers fall back to the seed.
+ */
+function readStored<T>(key: string, isValid: (v: unknown) => boolean): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const parsed: unknown = JSON.parse(raw);
+    return isValid(parsed) ? (parsed as T) : null;
+  } catch {
+    // corrupted or blocked storage — fall back to seed
+    return null;
+  }
+}
 
-  // Hydrate from localStorage after mount (avoids SSR mismatch)
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(DATA_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as PortalData;
-        if (
-          parsed?.students &&
-          parsed?.payments &&
-          parsed?.attendance &&
-          parsed?.messages &&
-          parsed?.staffing
-        ) {
-          setData(parsed);
-        }
-      }
-      const rawUser = localStorage.getItem(AUTH_KEY);
-      if (rawUser) setUser(JSON.parse(rawUser) as PortalUser);
-    } catch {
-      // corrupted storage — fall back to seed
-    }
-    setReady(true);
-  }, []);
+const isPortalData = (v: unknown): boolean => {
+  const d = v as PortalData | null;
+  return Boolean(
+    d?.students && d?.payments && d?.attendance && d?.messages && d?.staffing
+  );
+};
+
+const isPortalUser = (v: unknown): boolean => {
+  const u = v as PortalUser | null;
+  return typeof u?.id === "string" && typeof u?.role === "string";
+};
+
+// `ready` is false for the server render and the hydration pass, then flips to
+// true once React is running on the client. Deriving it from
+// useSyncExternalStore rather than a setState-in-effect keeps the prerendered
+// markup and the first client render identical (this is a static export) while
+// avoiding the cascading render that react-hooks/set-state-in-effect warns about.
+const subscribeToNothing = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerSnapshot = () => false;
+
+export function PortalProvider({ children }: { children: ReactNode }) {
+  const ready = useSyncExternalStore(
+    subscribeToNothing,
+    getHydratedSnapshot,
+    getServerSnapshot
+  );
+  // Read straight from storage during initialization. Safe against hydration
+  // mismatches because nothing downstream renders `user`/`data` until `ready`.
+  const [user, setUser] = useState<PortalUser | null>(() =>
+    readStored<PortalUser>(AUTH_KEY, isPortalUser)
+  );
+  const [data, setData] = useState<PortalData>(
+    () => readStored<PortalData>(DATA_KEY, isPortalData) ?? SEED
+  );
 
   // Persist on change
   useEffect(() => {
@@ -339,24 +365,27 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const sendMessage = useCallback((toId: string, text: string) => {
-    setUser((current) => {
-      if (!current) return current;
+  // Builds the message in the handler body, so the id and timestamp are minted
+  // exactly once per click. Doing this inside a setState updater made the
+  // updater impure — StrictMode double-invoked it and sent the message twice.
+  const sendMessage = useCallback(
+    (toId: string, text: string) => {
+      if (!user) return;
       const to = userById(toId);
-      if (!to || !canMessage(current.role, to.role)) return current;
+      if (!to || !canMessage(user.role, to.role)) return;
       const msg: Message = {
         id: crypto.randomUUID(),
-        fromId: current.id,
-        fromName: current.name,
+        fromId: user.id,
+        fromName: user.name,
         toId: to.id,
         toName: to.name,
         text,
         ts: new Date().toISOString(),
       };
       setData((d) => ({ ...d, messages: [...d.messages, msg] }));
-      return current;
-    });
-  }, []);
+    },
+    [user]
+  );
 
   const setClassLeads = useCallback((classId: string, leadIds: string[]) => {
     setData((d) => ({
