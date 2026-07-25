@@ -93,7 +93,7 @@ export interface PortalData {
   payments: Payment[];
   attendance: AttendanceRecord[];
   messages: Message[];
-  staffing: Record<string, ClassStaffing>; // key: class id from lib/data SCHEDULE
+  staffing: Record<string, ClassStaffing>; // key: ClassSession id from lib/data
 }
 
 export const PORTAL_BELTS = [
@@ -192,14 +192,15 @@ const SEED: PortalData = {
     { id: "m4", fromId: "u-kim", fromName: "Instructor Kim", toId: "u-park", toName: "Master Park", text: "Master Park, could you cover my Tuesday adult beginner class next week?", ts: hoursAgoISO(3) },
   ],
   staffing: {
-    c1: { leads: ["u-kim"], helpers: ["u-emma"] },
-    c2: { leads: ["u-kim"], helpers: [] },
-    c3: { leads: ["u-park"], helpers: [] },
-    c4: { leads: ["u-trudeau"], helpers: [] },
-    c7: { leads: ["u-park"], helpers: ["u-emma"] },
-    c9: { leads: ["u-trudeau"], helpers: [] },
-    c10: { leads: ["u-kim"], helpers: [] },
-    c12: { leads: ["u-trudeau"], helpers: [] },
+    // Keys are CLASS_SESSIONS ids from lib/data
+    "mon-1710": { leads: ["u-kim"], helpers: ["u-emma"] },
+    "mon-1800": { leads: ["u-park"], helpers: [] },
+    "mon-1850": { leads: ["u-trudeau"], helpers: [] },
+    "tue-1630": { leads: ["u-kim"], helpers: [] },
+    "wed-1800": { leads: ["u-park"], helpers: ["u-emma"] },
+    "thu-1710": { leads: ["u-trudeau"], helpers: [] },
+    "fri-1710": { leads: ["u-kim"], helpers: [] },
+    "sat-0900": { leads: ["u-trudeau"], helpers: [] },
   },
 };
 

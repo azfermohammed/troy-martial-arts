@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePortal, PORTAL_BELTS } from "@/lib/portal/store";
+import { CLASS_SESSIONS, sessionLabel } from "@/lib/data";
 import {
   BeltBadge,
   Card,
@@ -153,17 +154,29 @@ function PersonalDashboard() {
             Classes you teach
           </h2>
           <ul className="mt-4 space-y-2">
-            {myClasses.map(([classId, s]) => (
-              <li
-                key={classId}
-                className="flex items-center justify-between gap-3 rounded-lg border border-edge px-4 py-2.5 text-sm"
-              >
-                <span className="font-medium text-graphite">{classId}</span>
-                <span className="text-xs text-muted">
-                  {user && s.leads.includes(user.id) ? "Lead" : "Helper"}
-                </span>
-              </li>
-            ))}
+            {myClasses.map(([classId, s]) => {
+              const session = CLASS_SESSIONS.find((c) => c.id === classId);
+              return (
+                <li
+                  key={classId}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-edge px-4 py-2.5 text-sm"
+                >
+                  <span className="min-w-0">
+                    <span className="block font-medium text-graphite">
+                      {session ? `${session.day} ${session.slot}` : classId}
+                    </span>
+                    {session && (
+                      <span className="block text-xs text-muted">
+                        {sessionLabel(session)}
+                      </span>
+                    )}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted">
+                    {user && s.leads.includes(user.id) ? "Lead" : "Helper"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         </Card>
       )}

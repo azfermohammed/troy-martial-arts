@@ -297,24 +297,39 @@ export const INSTRUCTORS: Instructor[] = [
   },
 ];
 
-// ----- Weekly schedule (2024–25 official grid) -----
+// ----- Weekly class schedule -----
+// Source: docs/2024-25-weekly-schedule.pdf.
+//
+// The printed sheet repeats every class four times — once per age band
+// (5-10, 11-15, Adult, Family) — even though the same belts share the mat.
+// That duplication is what makes the sheet hard to read, so it is collapsed
+// here: a class is a single day + time, and it lists the belts welcome in
+// it. Per the school, the 11-15 and Adult columns are the accurate ones, so
+// this is the union of those two. No class runs longer than 40 minutes.
 
-export type AgeGroup = "Ages 5–10" | "Ages 11–15" | "Adults" | "Family (5+)";
 export type Level = "Beginner" | "Intermediate" | "Advanced" | "Black Belt";
+export type Weekday = "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat";
+export type ClassFocus = "Sparring" | "Cardio";
 
-export interface ScheduleBlock {
-  days: string[]; // e.g. ["Mon", "Wed"]
-  slot: string; // display, e.g. "4:30–5:00 PM"
-  note?: "Sparring" | "Cardio";
-}
+// Kept for student records — a child is still "Ages 5–10" even though the
+// class they attend is chosen by belt, not age.
+export type AgeGroup = "Ages 5–10" | "Ages 11–15" | "Adults" | "Family (5+)";
 
-export interface LevelSchedule {
-  id: string;
-  group: AgeGroup;
-  level: Level;
-  belts: string;
-  blocks: ScheduleBlock[];
-}
+export const WEEKDAYS: Weekday[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** The belts that train at each level, exactly as the schedule groups them. */
+export const LEVEL_BELTS: Record<Level, string[]> = {
+  Beginner: ["White", "Yellow"],
+  Intermediate: ["Sr. Yellow", "Green", "Sr. Green"],
+  Advanced: ["Blue", "Sr. Blue", "Red"],
+  "Black Belt": [
+    "Sr. Red",
+    "Bodan",
+    "Black 1st Dan",
+    "Black 2nd Dan",
+    "Black 3rd Dan",
+  ],
+};
 
 export const LEVEL_COLORS: Record<Level, string> = {
   Beginner: "bg-amber-100 text-amber-900 border-amber-300",
@@ -323,200 +338,84 @@ export const LEVEL_COLORS: Record<Level, string> = {
   "Black Belt": "bg-slate-800 text-white border-slate-600",
 };
 
-export const SCHEDULE: LevelSchedule[] = [
-  // Ages 5–10
-  {
-    id: "c1",
-    group: "Ages 5–10",
-    level: "Beginner",
-    belts: "White & Yellow belts",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "4:30–5:00 PM" },
-      { days: ["Tue", "Thu"], slot: "5:10–5:50 PM" },
-      { days: ["Sat"], slot: "9:50–10:30 AM" },
-    ],
-  },
-  {
-    id: "c2",
-    group: "Ages 5–10",
-    level: "Intermediate",
-    belts: "Sr. Yellow, Green & Sr. Green",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "5:10–5:50 PM" },
-      { days: ["Tue", "Thu"], slot: "4:30–5:00 PM" },
-      { days: ["Sat"], slot: "10:40–11:20 AM" },
-    ],
-  },
-  {
-    id: "c3",
-    group: "Ages 5–10",
-    level: "Advanced",
-    belts: "Blue, Sr. Blue & Red",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:00–6:40 PM" },
-      { days: ["Tue", "Thu"], slot: "7:40–8:20 PM" },
-      { days: ["Fri"], slot: "5:10–5:50 PM" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  {
-    id: "c4",
-    group: "Ages 5–10",
-    level: "Black Belt",
-    belts: "Sr. Red, Bodan & Black Belt",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:50–7:30 PM", note: "Sparring" },
-      { days: ["Tue", "Thu"], slot: "6:50–7:30 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  // Ages 11–15
-  {
-    id: "c5",
-    group: "Ages 11–15",
-    level: "Beginner",
-    belts: "White & Yellow belts",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Tue", "Thu"], slot: "5:10–5:50 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:50–10:30 AM" },
-    ],
-  },
-  {
-    id: "c6",
-    group: "Ages 11–15",
-    level: "Intermediate",
-    belts: "Sr. Yellow, Green & Sr. Green",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "7:40–8:20 PM", note: "Cardio" },
-      { days: ["Tue", "Thu"], slot: "4:30–5:00 PM" },
-      { days: ["Fri"], slot: "6:50–7:30 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "10:40–11:20 AM" },
-    ],
-  },
-  {
-    id: "c7",
-    group: "Ages 11–15",
-    level: "Advanced",
-    belts: "Blue, Sr. Blue & Red",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:00–6:40 PM" },
-      { days: ["Tue", "Thu"], slot: "7:40–8:20 PM" },
-      { days: ["Fri"], slot: "5:10–5:50 PM" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  {
-    id: "c8",
-    group: "Ages 11–15",
-    level: "Black Belt",
-    belts: "Sr. Red, Bodan & Black Belt",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:50–7:30 PM", note: "Sparring" },
-      { days: ["Tue", "Thu"], slot: "6:50–7:30 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  // Adults
-  {
-    id: "c9",
-    group: "Adults",
-    level: "Beginner",
-    belts: "White & Yellow belts",
-    blocks: [
-      { days: ["Mon", "Tue", "Wed", "Thu"], slot: "5:10–5:50 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:50–10:30 AM" },
-    ],
-  },
-  {
-    id: "c10",
-    group: "Adults",
-    level: "Intermediate",
-    belts: "Sr. Yellow, Green & Sr. Green",
-    blocks: [
-      { days: ["Mon", "Tue", "Wed", "Thu"], slot: "6:00–6:40 PM" },
-      { days: ["Fri"], slot: "6:50–7:30 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "10:40–11:20 AM" },
-    ],
-  },
-  {
-    id: "c11",
-    group: "Adults",
-    level: "Advanced",
-    belts: "Blue, Sr. Blue & Red",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "7:40–8:20 PM", note: "Cardio" },
-      { days: ["Tue", "Thu"], slot: "7:40–8:20 PM" },
-      { days: ["Fri"], slot: "5:10–5:50 PM" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  {
-    id: "c12",
-    group: "Adults",
-    level: "Black Belt",
-    belts: "Sr. Red, Bodan & Black Belt",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:50–7:30 PM", note: "Sparring" },
-      { days: ["Tue", "Thu"], slot: "6:50–7:30 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  // Family (5+)
-  {
-    id: "c13",
-    group: "Family (5+)",
-    level: "Beginner",
-    belts: "White & Yellow belts",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "5:10–5:50 PM" },
-      { days: ["Tue", "Thu"], slot: "4:30–5:00 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:50–10:30 AM" },
-    ],
-  },
-  {
-    id: "c14",
-    group: "Family (5+)",
-    level: "Intermediate",
-    belts: "Sr. Yellow, Green & Sr. Green",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:00–6:40 PM" },
-      { days: ["Tue", "Thu"], slot: "5:10–5:50 PM" },
-      { days: ["Fri"], slot: "6:50–7:30 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "10:40–11:20 AM" },
-    ],
-  },
-  {
-    id: "c15",
-    group: "Family (5+)",
-    level: "Advanced",
-    belts: "Blue, Sr. Blue & Red",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "6:00–6:40 PM" },
-      { days: ["Tue", "Thu"], slot: "7:40–8:20 PM" },
-      { days: ["Fri"], slot: "5:10–5:50 PM" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
-  {
-    id: "c16",
-    group: "Family (5+)",
-    level: "Black Belt",
-    belts: "Sr. Red, Bodan & Black Belt",
-    blocks: [
-      { days: ["Mon", "Wed"], slot: "7:40–8:20 PM", note: "Cardio" },
-      { days: ["Tue", "Thu"], slot: "6:50–7:30 PM" },
-      { days: ["Fri"], slot: "6:00–6:40 PM", note: "Sparring" },
-      { days: ["Sat"], slot: "9:00–9:40 AM" },
-    ],
-  },
+export interface ClassSession {
+  id: string;
+  day: Weekday;
+  /** Minutes past midnight — orders the calendar grid. */
+  start: number;
+  slot: string;
+  /** Levels sharing this class; expand via LEVEL_BELTS for actual belts. */
+  levels: Level[];
+  focus?: ClassFocus;
+}
+
+export const CLASS_SESSIONS: ClassSession[] = [
+  // Monday
+  { id: "mon-1710", day: "Mon", start: 1030, slot: "5:10–5:50 PM", levels: ["Beginner", "Intermediate"] },
+  { id: "mon-1800", day: "Mon", start: 1080, slot: "6:00–6:40 PM", levels: ["Advanced"] },
+  { id: "mon-1850", day: "Mon", start: 1130, slot: "6:50–7:30 PM", levels: ["Black Belt"], focus: "Sparring" },
+  { id: "mon-1940", day: "Mon", start: 1180, slot: "7:40–8:20 PM", levels: ["Beginner", "Intermediate", "Advanced", "Black Belt"], focus: "Cardio" },
+
+  // Tuesday
+  { id: "tue-1630", day: "Tue", start: 990, slot: "4:30–5:00 PM", levels: ["Intermediate"] },
+  { id: "tue-1710", day: "Tue", start: 1030, slot: "5:10–5:50 PM", levels: ["Beginner"] },
+  { id: "tue-1800", day: "Tue", start: 1080, slot: "6:00–6:40 PM", levels: ["Black Belt"], focus: "Sparring" },
+  { id: "tue-1850", day: "Tue", start: 1130, slot: "6:50–7:30 PM", levels: ["Black Belt"] },
+  { id: "tue-1940", day: "Tue", start: 1180, slot: "7:40–8:20 PM", levels: ["Beginner", "Intermediate", "Advanced"] },
+
+  // Wednesday
+  { id: "wed-1710", day: "Wed", start: 1030, slot: "5:10–5:50 PM", levels: ["Advanced"] },
+  { id: "wed-1800", day: "Wed", start: 1080, slot: "6:00–6:40 PM", levels: ["Beginner", "Intermediate", "Advanced"], focus: "Sparring" },
+  { id: "wed-1850", day: "Wed", start: 1130, slot: "6:50–7:30 PM", levels: ["Beginner", "Intermediate"] },
+  { id: "wed-1940", day: "Wed", start: 1180, slot: "7:40–8:20 PM", levels: ["Black Belt"] },
+
+  // Thursday
+  { id: "thu-1630", day: "Thu", start: 990, slot: "4:30–5:00 PM", levels: ["Intermediate"] },
+  { id: "thu-1710", day: "Thu", start: 1030, slot: "5:10–5:50 PM", levels: ["Advanced", "Black Belt"] },
+  { id: "thu-1800", day: "Thu", start: 1080, slot: "6:00–6:40 PM", levels: ["Beginner"] },
+  { id: "thu-1850", day: "Thu", start: 1130, slot: "6:50–7:30 PM", levels: ["Beginner", "Intermediate", "Advanced"], focus: "Sparring" },
+  { id: "thu-1940", day: "Thu", start: 1180, slot: "7:40–8:20 PM", levels: ["Beginner", "Intermediate", "Advanced", "Black Belt"] },
+
+  // Friday
+  { id: "fri-1630", day: "Fri", start: 990, slot: "4:30–5:00 PM", levels: ["Advanced", "Black Belt"] },
+  { id: "fri-1710", day: "Fri", start: 1030, slot: "5:10–5:50 PM", levels: ["Beginner"] },
+  { id: "fri-1800", day: "Fri", start: 1080, slot: "6:00–6:40 PM", levels: ["Intermediate"] },
+
+  // Saturday
+  { id: "sat-0900", day: "Sat", start: 540, slot: "9:00–9:40 AM", levels: ["Advanced", "Black Belt"] },
+  { id: "sat-0950", day: "Sat", start: 590, slot: "9:50–10:30 AM", levels: ["Beginner"] },
+  { id: "sat-1040", day: "Sat", start: 640, slot: "10:40–11:20 AM", levels: ["Intermediate"] },
 ];
+
+/** Every distinct time slot, ordered — the calendar's row axis. */
+export const TIME_SLOTS: { start: number; slot: string }[] = Array.from(
+  new Map(CLASS_SESSIONS.map((s) => [s.start, { start: s.start, slot: s.slot }])).values()
+).sort((a, b) => a.start - b.start);
+
+/** Which level a belt trains at. */
+export function beltToLevel(belt: string): Level {
+  for (const [level, belts] of Object.entries(LEVEL_BELTS) as [Level, string[]][]) {
+    if (belts.includes(belt)) return level;
+  }
+  return "Beginner";
+}
+
+/** The actual belt names welcome in a class. */
+export function beltsInSession(session: ClassSession): string[] {
+  return session.levels.flatMap((l) => LEVEL_BELTS[l]);
+}
+
+/** Every class a given belt can attend. */
+export function sessionsForBelt(belt: string): ClassSession[] {
+  const level = beltToLevel(belt);
+  return CLASS_SESSIONS.filter((s) => s.levels.includes(level));
+}
+
+/** Short label for a class, e.g. "Beginner & Intermediate" or "All belts". */
+export function sessionLabel(session: ClassSession): string {
+  if (session.levels.length === 4) return "All belts";
+  return session.levels.join(" & ");
+}
 
 export const AGE_GROUPS: AgeGroup[] = [
   "Ages 5–10",

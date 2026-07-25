@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SCHEDULE } from "@/lib/data";
+import { beltToLevel, CLASS_SESSIONS, sessionLabel } from "@/lib/data";
 import { usePortal } from "@/lib/portal/store";
 import {
   AdminGate,
@@ -15,10 +15,11 @@ import { Icon } from "@/components/portal/icons";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-// "Advanced · Ages 11–15" labels, matched to student groups
-const CLASS_OPTIONS = SCHEDULE.map((c) => ({
-  label: `${c.level} · ${c.group}`,
-  group: c.group,
+// One option per real class on the mat, e.g.
+// "Mon 5:10–5:50 PM · Beginner & Intermediate"
+const CLASS_OPTIONS = CLASS_SESSIONS.map((c) => ({
+  label: `${c.day} ${c.slot} · ${sessionLabel(c)}`,
+  session: c,
 }));
 
 function AttendanceInner() {
@@ -32,8 +33,12 @@ function AttendanceInner() {
   const [historyQuery, setHistoryQuery] = useState("");
 
   const selectedClass = CLASS_OPTIONS.find((c) => c.label === classLabel);
+  // Belt level decides who is on the mat, not age group.
   const roster = students.filter(
-    (s) => s.status === "Active" && s.group === selectedClass?.group
+    (s) =>
+      s.status === "Active" &&
+      !!selectedClass &&
+      selectedClass.session.levels.includes(beltToLevel(s.belt))
   );
 
   function toggle(id: string, present: boolean) {
