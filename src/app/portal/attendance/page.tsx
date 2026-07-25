@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { SCHEDULE } from "@/lib/data";
+import { beltToLevel, CLASS_SESSIONS, sessionLabel } from "@/lib/data";
 import { usePortal } from "@/lib/portal/store";
 import {
   AdminGate,
@@ -11,13 +11,15 @@ import {
   PrimaryButton,
   StatusBadge,
 } from "@/components/portal/ui";
+import { Icon } from "@/components/portal/icons";
 
 const today = () => new Date().toISOString().slice(0, 10);
 
-// "Advanced · Ages 11–15" labels, matched to student groups
-const CLASS_OPTIONS = SCHEDULE.map((c) => ({
-  label: `${c.level} · ${c.group}`,
-  group: c.group,
+// One option per real class on the mat, e.g.
+// "Mon 5:10–5:50 PM · Beginner & Intermediate"
+const CLASS_OPTIONS = CLASS_SESSIONS.map((c) => ({
+  label: `${c.day} ${c.slot} · ${sessionLabel(c)}`,
+  session: c,
 }));
 
 function AttendanceInner() {
@@ -31,8 +33,12 @@ function AttendanceInner() {
   const [historyQuery, setHistoryQuery] = useState("");
 
   const selectedClass = CLASS_OPTIONS.find((c) => c.label === classLabel);
+  // Belt level decides who is on the mat, not age group.
   const roster = students.filter(
-    (s) => s.status === "Active" && s.group === selectedClass?.group
+    (s) =>
+      s.status === "Active" &&
+      !!selectedClass &&
+      selectedClass.session.levels.includes(beltToLevel(s.belt))
   );
 
   function toggle(id: string, present: boolean) {
@@ -78,12 +84,14 @@ function AttendanceInner() {
 
       {/* Take attendance */}
       <Card className="p-6">
-        <h2 className="font-display text-lg font-extrabold text-ink">
+        <h2 className="text-lg font-semibold tracking-tight text-graphite">
           Take attendance
         </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs font-bold text-ink">Class</label>
+            <label className="mb-1 block text-xs font-semibold text-graphite">
+              Class
+            </label>
             <select
               value={classLabel}
               onChange={(e) => {
@@ -98,7 +106,9 @@ function AttendanceInner() {
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-bold text-ink">Date</label>
+            <label className="mb-1 block text-xs font-semibold text-graphite">
+              Date
+            </label>
             <input
               type="date"
               value={date}
@@ -108,35 +118,36 @@ function AttendanceInner() {
           </div>
         </div>
 
-        <div className="mt-5 divide-y divide-ink/5 rounded-2xl border border-ink/8">
+        <div className="mt-5 divide-y divide-edge rounded-xl border border-edge">
           {roster.length === 0 && (
-            <p className="px-5 py-8 text-center text-sm text-ink-soft/50">
+            <p className="px-5 py-8 text-center text-sm text-muted">
               No active students in this program group.
             </p>
           )}
           {roster.map((s) => (
             <div key={s.id} className="flex items-center justify-between gap-3 px-5 py-3">
               <div>
-                <p className="text-sm font-bold text-ink">{s.name}</p>
-                <p className="text-xs text-ink-soft/60">{s.belt}</p>
+                <p className="text-sm font-semibold text-graphite">{s.name}</p>
+                <p className="text-xs text-muted">{s.belt}</p>
               </div>
+              {/* Present/absent keep their semantic green + red */}
               <div className="flex gap-1.5">
                 <button
                   onClick={() => toggle(s.id, true)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+                  className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-colors ${
                     marks[s.id] === true
                       ? "bg-green-600 text-white"
-                      : "border border-ink/10 text-ink-soft hover:border-green-400"
+                      : "border border-edge text-muted hover:border-green-400 hover:text-green-700"
                   }`}
                 >
                   Present
                 </button>
                 <button
                   onClick={() => toggle(s.id, false)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-bold transition-colors ${
+                  className={`rounded-lg px-4 py-1.5 text-xs font-semibold transition-colors ${
                     marks[s.id] === false
                       ? "bg-red-600 text-white"
-                      : "border border-ink/10 text-ink-soft hover:border-red-400"
+                      : "border border-edge text-muted hover:border-red-400 hover:text-red-700"
                   }`}
                 >
                   Absent
@@ -151,7 +162,10 @@ function AttendanceInner() {
             Save {Object.keys(marks).length > 0 && `(${Object.keys(marks).length})`}
           </PrimaryButton>
           {savedFlash && (
-            <span className="text-sm font-bold text-green-700">✓ Attendance saved</span>
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-green-700">
+              <Icon name="check" size={16} />
+              Attendance saved
+            </span>
           )}
         </div>
       </Card>
@@ -159,7 +173,9 @@ function AttendanceInner() {
       {/* History */}
       <div className="mt-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-extrabold text-ink">Recent records</h2>
+          <h2 className="text-lg font-semibold tracking-tight text-graphite">
+            Recent records
+          </h2>
           <input
             value={historyQuery}
             onChange={(e) => setHistoryQuery(e.target.value)}
@@ -170,21 +186,24 @@ function AttendanceInner() {
         <Card className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead>
-              <tr className="border-b border-ink/8 text-xs uppercase tracking-wider text-ink-soft/60">
-                <th className="px-5 py-3.5 font-bold">Date</th>
-                <th className="px-4 py-3.5 font-bold">Student</th>
-                <th className="px-4 py-3.5 font-bold">Class</th>
-                <th className="px-4 py-3.5 font-bold">Status</th>
+              <tr className="border-b border-edge text-xs uppercase tracking-wider text-muted">
+                <th className="px-5 py-3.5 font-semibold">Date</th>
+                <th className="px-4 py-3.5 font-semibold">Student</th>
+                <th className="px-4 py-3.5 font-semibold">Class</th>
+                <th className="px-4 py-3.5 font-semibold">Status</th>
               </tr>
             </thead>
             <tbody>
               {history.map((a) => (
-                <tr key={a.id} className="border-b border-ink/5 last:border-0 hover:bg-cream/60">
-                  <td className="px-5 py-3 text-ink-soft">{a.date}</td>
-                  <td className="px-4 py-3 font-bold text-ink">
+                <tr
+                  key={a.id}
+                  className="border-b border-edge last:border-0 hover:bg-canvas"
+                >
+                  <td className="px-5 py-3 text-muted">{a.date}</td>
+                  <td className="px-4 py-3 font-semibold text-graphite">
                     {students.find((s) => s.id === a.studentId)?.name ?? "—"}
                   </td>
-                  <td className="px-4 py-3 text-ink-soft">{a.classLabel}</td>
+                  <td className="px-4 py-3 text-muted">{a.classLabel}</td>
                   <td className="px-4 py-3">
                     <StatusBadge status={a.present ? "Present" : "Absent"} />
                   </td>

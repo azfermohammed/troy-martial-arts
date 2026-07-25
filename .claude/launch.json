@@ -7,6 +7,13 @@
       "runtimeArgs": ["run", "dev"],
       "cwd": "/Users/AzferMohammed/dev/troy-martial-arts",
       "port": 3000
+    },
+    {
+      "name": "portal-migration-worktree",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3100"],
+      "cwd": "/Users/AzferMohammed/dev/troy-martial-arts/.claude/worktrees/ecstatic-robinson-c870de",
+      "port": 3100
     }
   ]
 }

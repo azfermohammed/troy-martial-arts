@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { BIZ, PROGRAMS } from "@/lib/data";
 import {
   BeltStripe,
@@ -7,11 +8,12 @@ import {
   Eyebrow,
   SectionHeading,
 } from "@/components/ui";
+import { asset } from "@/lib/assetPath";
 
 export const metadata: Metadata = {
   title: "Programs — Kids, Teens, Adults & Family Taekwondo",
   description:
-    "Kukkiwon-certified Taekwondo programs for ages 5 to adult in Troy, MI: Little Champions, Tweens & Teens, Adults, Family Classes, Competition Team, and Summer Camp.",
+    "Kukkiwon-certified Taekwondo programs in Troy, MI for ages 5 to adult: Kids 5–10, Kids 11–15, Adults, Family Classes, Competition Teams, and Summer Camp.",
 };
 
 export default function ProgramsPage() {
@@ -40,9 +42,7 @@ export default function ProgramsPage() {
               }`}
             >
               <div>
-                <Eyebrow>
-                  {p.emoji} {p.ages}
-                </Eyebrow>
+                <Eyebrow>{p.ages}</Eyebrow>
                 <h2 className="mt-4 font-display text-3xl font-bold text-ink">{p.name}</h2>
                 <p className="mt-2 text-lg font-semibold text-brand">{p.tagline}</p>
                 <p className="mt-4 leading-relaxed text-ink-soft/80">{p.blurb}</p>
@@ -57,22 +57,22 @@ export default function ProgramsPage() {
                   ))}
                 </ul>
                 <div className="mt-7 flex flex-wrap gap-3">
-                  <ButtonLink href="/contact">Try This Program Free</ButtonLink>
+                  <ButtonLink href="/contact">
+                    Start the {BIZ.trial.priceLabel} Trial
+                  </ButtonLink>
                   <ButtonLink href="/schedule" variant="ghost">
                     View times →
                   </ButtonLink>
                 </div>
               </div>
-              <div
-                className={`flex h-64 items-center justify-center rounded-[2.5rem] shadow-lift lg:h-80 ${
-                  i % 2 === 0
-                    ? "bg-gradient-to-br from-cream to-gold-soft"
-                    : "bg-gradient-to-br from-ink to-ink-soft"
-                }`}
-              >
-                <span className="text-8xl drop-shadow-lg" aria-hidden>
-                  {p.emoji}
-                </span>
+              <div className="overflow-hidden rounded-[2.5rem] border border-ink/10 shadow-lift">
+                <Image
+                  src={asset(p.image)}
+                  alt={`${p.name} — ${p.ages} at Troy Martial Arts`}
+                  width={1024}
+                  height={683}
+                  className="h-64 w-full object-cover lg:h-80"
+                />
               </div>
             </article>
           ))}
@@ -89,7 +89,7 @@ export default function ProgramsPage() {
             your first visit in about two minutes.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
-            <ButtonLink href={BIZ.phoneHref}>📞 {BIZ.phone}</ButtonLink>
+            <ButtonLink href={BIZ.phoneHref}>Call {BIZ.phone}</ButtonLink>
             <ButtonLink href="/contact" variant="secondary">
               Request Info Online
             </ButtonLink>

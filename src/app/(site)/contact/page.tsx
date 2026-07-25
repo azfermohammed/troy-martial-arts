@@ -18,7 +18,9 @@ export default function ContactPage() {
     <>
       <section className="bg-cream">
         <Container className="py-16 text-center lg:py-20">
-          <Eyebrow>🥋 {BIZ.trial.headline} · {BIZ.trial.sub}</Eyebrow>
+          <Eyebrow>
+            {BIZ.trial.priceLabel} {BIZ.trial.headline} · {BIZ.trial.sub}
+          </Eyebrow>
           <h1 className="mx-auto mt-5 max-w-2xl font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
             Your first class is closer than you think
           </h1>
@@ -68,7 +70,10 @@ export default function ContactPage() {
                 <span className="block text-ink-soft/60">{BIZ.addressNote}</span>
               </p>
               <p className="mt-3 text-sm text-ink-soft">
-                🕐 Classes Mon–Sat · afternoons, evenings & Saturday mornings
+                <span className="block text-xs font-bold uppercase tracking-wider text-ink-soft/60">
+                  Hours
+                </span>
+                {BIZ.hours} · {BIZ.daysPerWeek}
               </p>
               <a
                 href={BIZ.mapsHref}

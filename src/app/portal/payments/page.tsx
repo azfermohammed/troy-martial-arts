@@ -12,6 +12,7 @@ import {
   StatCard,
   StatusBadge,
 } from "@/components/portal/ui";
+import { Icon } from "@/components/portal/icons";
 
 type Tab = "All" | "Paid" | "Pending" | "Overdue";
 
@@ -68,7 +69,10 @@ function PaymentsInner() {
         title="Payments"
         sub="Tuition, gear, and event fees"
         action={
-          <PrimaryButton onClick={() => setShowForm(true)}>+ Add payment</PrimaryButton>
+          <PrimaryButton onClick={() => setShowForm(true)}>
+            <Icon name="plus" size={15} />
+            Add payment
+          </PrimaryButton>
         }
       />
 
@@ -86,19 +90,21 @@ function PaymentsInner() {
         <StatCard
           label="Overdue"
           value={String(overdue.length)}
-          hint={overdue.length ? "needs follow-up" : "all caught up 🎉"}
-          accent={overdue.length ? "text-brand" : "text-ink"}
+          hint={overdue.length ? "needs follow-up" : "all caught up"}
+          accent={overdue.length ? "text-red-600" : "text-graphite"}
         />
       </div>
 
       <div className="mb-5 mt-8 flex flex-wrap items-center gap-3">
-        <div className="flex gap-1 rounded-full bg-white p-1 shadow-lift">
+        <div className="flex gap-1 rounded-lg border border-edge bg-panel p-1 shadow-tab">
           {(["All", "Paid", "Pending", "Overdue"] as Tab[]).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-2 text-xs font-bold transition-colors ${
-                tab === t ? "bg-brand text-white" : "text-ink-soft hover:bg-ink/5"
+              className={`rounded-md px-4 py-2 text-xs font-semibold transition-colors ${
+                tab === t
+                  ? "bg-graphite text-white"
+                  : "text-muted hover:bg-canvas hover:text-graphite"
               }`}
             >
               {t}
@@ -116,44 +122,51 @@ function PaymentsInner() {
       <Card className="overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
-            <tr className="border-b border-ink/8 text-xs uppercase tracking-wider text-ink-soft/60">
-              <th className="px-5 py-3.5 font-bold">Student</th>
-              <th className="px-4 py-3.5 font-bold">Description</th>
-              <th className="px-4 py-3.5 font-bold">Amount</th>
-              <th className="px-4 py-3.5 font-bold">Due</th>
-              <th className="px-4 py-3.5 font-bold">Status</th>
-              <th className="px-4 py-3.5 text-right font-bold">Action</th>
+            <tr className="border-b border-edge text-xs uppercase tracking-wider text-muted">
+              <th className="px-5 py-3.5 font-semibold">Student</th>
+              <th className="px-4 py-3.5 font-semibold">Description</th>
+              <th className="px-4 py-3.5 font-semibold">Amount</th>
+              <th className="px-4 py-3.5 font-semibold">Due</th>
+              <th className="px-4 py-3.5 font-semibold">Status</th>
+              <th className="px-4 py-3.5 text-right font-semibold">Action</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-5 py-10 text-center text-ink-soft/50">
+                <td colSpan={6} className="px-5 py-10 text-center text-muted">
                   No payments match.
                 </td>
               </tr>
             )}
             {filtered.map((p) => (
-              <tr key={p.id} className="border-b border-ink/5 last:border-0 hover:bg-cream/60">
-                <td className="px-5 py-3.5 font-bold text-ink">
+              <tr
+                key={p.id}
+                className="border-b border-edge last:border-0 hover:bg-canvas"
+              >
+                <td className="px-5 py-3.5 font-semibold text-graphite">
                   {students.find((s) => s.id === p.studentId)?.name ?? "—"}
                 </td>
-                <td className="px-4 py-3.5 text-ink-soft">{p.description}</td>
-                <td className="px-4 py-3.5 font-bold text-ink">${p.amount}</td>
-                <td className="px-4 py-3.5 text-ink-soft">{p.dueDate}</td>
+                <td className="px-4 py-3.5 text-muted">{p.description}</td>
+                <td className="px-4 py-3.5 font-semibold text-graphite">${p.amount}</td>
+                <td className="px-4 py-3.5 text-muted">{p.dueDate}</td>
                 <td className="px-4 py-3.5">
                   <StatusBadge status={p.status} />
                 </td>
                 <td className="px-4 py-3.5 text-right">
                   {p.status !== "Paid" ? (
+                    /* Settling a payment is the positive action — stays green */
                     <button
                       onClick={() => markPaid(p.id)}
-                      className="rounded-full bg-green-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-green-700"
+                      className="rounded-lg bg-green-600 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-green-700"
                     >
                       Mark paid
                     </button>
                   ) : (
-                    <span className="text-xs text-ink-soft/40">✓ settled</span>
+                    <span className="inline-flex items-center gap-1 text-xs text-muted">
+                      <Icon name="check" size={13} className="text-green-600" />
+                      settled
+                    </span>
                   )}
                 </td>
               </tr>
@@ -165,7 +178,7 @@ function PaymentsInner() {
       <Modal open={showForm} title="Add payment" onClose={() => setShowForm(false)}>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-bold text-ink">Student *</label>
+            <label className="mb-1 block text-xs font-semibold text-graphite">Student *</label>
             <select name="studentId" required className={inputCls} defaultValue="">
               <option value="" disabled>
                 Choose a student…
@@ -181,7 +194,9 @@ function PaymentsInner() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Amount ($) *</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">
+                Amount ($) *
+              </label>
               <input
                 name="amount"
                 type="number"
@@ -192,7 +207,9 @@ function PaymentsInner() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-bold text-ink">Due date *</label>
+              <label className="mb-1 block text-xs font-semibold text-graphite">
+                Due date *
+              </label>
               <input
                 name="dueDate"
                 type="date"
@@ -203,7 +220,9 @@ function PaymentsInner() {
             </div>
           </div>
           <div>
-            <label className="mb-1 block text-xs font-bold text-ink">Description *</label>
+            <label className="mb-1 block text-xs font-semibold text-graphite">
+              Description *
+            </label>
             <input
               name="description"
               required
@@ -212,7 +231,7 @@ function PaymentsInner() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs font-bold text-ink">Status</label>
+            <label className="mb-1 block text-xs font-semibold text-graphite">Status</label>
             <select name="status" defaultValue="Pending" className={inputCls}>
               <option>Pending</option>
               <option>Paid</option>

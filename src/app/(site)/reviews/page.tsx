@@ -64,13 +64,13 @@ export default function ReviewsPage() {
               Ready to write your own review?
             </h2>
             <p className="mx-auto mt-3 max-w-lg text-white/70">
-              Start with the {BIZ.trial.headline.toLowerCase()} — unlimited
-              classes and a free uniform — and see what {BIZ.reviewCount}{" "}
-              families are talking about.
+              Start with the {BIZ.trial.priceLabel} {BIZ.trial.headline.toLowerCase()} —
+              unlimited classes and a free uniform — and see what{" "}
+              {BIZ.reviewCount} families are talking about.
             </p>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
               <ButtonLink href="/contact" variant="gold">
-                Start Free Trial
+                Start the {BIZ.trial.priceLabel} Trial
               </ButtonLink>
               <ButtonLink href={BIZ.mapsHref} variant="ghost" className="text-white hover:bg-white/10">
                 See all reviews on Google ↗
