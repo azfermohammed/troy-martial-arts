@@ -15,9 +15,11 @@
  */
 
 export interface BeltRequirement {
-  /** Minimum weeks a student must hold this belt before grading out of it. */
-  minWeeksInRank: number;
-  /** Classes to log while at this belt. */
+  /**
+   * Classes to log at this belt before a promotion slip is issued. Per the
+   * school, attendance is what drives promotion — hit the count and you get a
+   * slip, which lets you advance at the next promotion.
+   */
   classesRequired: number;
 }
 
@@ -65,7 +67,7 @@ export function nextPromotionDay(from: Date): Date {
 /** Set to true once BELT_REQUIREMENTS holds the school's actual policy. */
 export const PROMOTION_DATA_CONFIRMED = false;
 
-const PLACEHOLDER: BeltRequirement = { minWeeksInRank: 8, classesRequired: 24 };
+const PLACEHOLDER: BeltRequirement = { classesRequired: 24 };
 
 /**
  * Requirements to promote OUT of each belt, keyed by the belt held now.
@@ -97,24 +99,31 @@ export interface PromotionProjection {
   /** Classes logged since the student entered their current rank. */
   classesAttended: number;
   classesRequired: number;
+  classesRemaining: number;
   /** Weeks held at the current belt so far. */
   weeksInRank: number;
-  minWeeksInRank: number;
   /** 0–1, how far through the class requirement they are. */
   progress: number;
+  /** The student's own recent attendance rate, classes per week. */
+  pacePerWeek: number;
   /** YYYY-MM-DD estimate, or null at the top of the belt order. */
   projectedDate: string | null;
-  /** True once both the class and time-in-rank requirements are met. */
-  eligibleNow: boolean;
+  /** True once the class count is met — the promotion slip is earned. */
+  slipEarned: boolean;
   nextBelt: string | null;
   /** False while BELT_REQUIREMENTS is still placeholder data. */
   confirmed: boolean;
 }
 
 /**
- * Projects from two constraints, whichever lands later:
- *   - time in rank: at least `minWeeksInRank` since entering the rank
- *   - classes: the remaining classes at the recommended 2-per-week pace
+ * Attendance drives promotion, so this projects purely from classes: how many
+ * are left, divided by the pace the student is actually training at, then
+ * rounded forward to the next promotion day.
+ *
+ * Their own pace is used rather than the recommended two a week — a student
+ * training four times a week should not be told the average timeline. Until
+ * there is enough history to measure (under two weeks at the rank), it falls
+ * back to the recommended pace.
  */
 export function projectPromotion(opts: {
   currentBelt: string;
@@ -131,38 +140,33 @@ export function projectPromotion(opts: {
   const idx = belts.indexOf(currentBelt);
   const nextBelt = idx >= 0 && idx < belts.length - 1 ? belts[idx + 1] : null;
 
-  const { minWeeksInRank, classesRequired } = requirementFor(currentBelt);
+  const { classesRequired } = requirementFor(currentBelt);
   const classesAttended = attendanceDates.filter((d) => d >= inRankSince).length;
-
-  const remaining = Math.max(0, classesRequired - classesAttended);
-  const weeksOfClassesLeft = remaining / RECOMMENDED_CLASSES_PER_WEEK;
+  const classesRemaining = Math.max(0, classesRequired - classesAttended);
 
   const start = new Date(`${inRankSince}T00:00:00`);
-  const weeksInRank = Math.max(
-    0,
-    Math.floor((today.getTime() - start.getTime()) / (7 * DAY_MS))
-  );
+  const elapsedWeeks = (today.getTime() - start.getTime()) / (7 * DAY_MS);
+  const weeksInRank = Math.max(0, Math.floor(elapsedWeeks));
 
-  const timeInRankDate = new Date(start.getTime() + minWeeksInRank * 7 * DAY_MS);
-  const classPaceDate = new Date(today.getTime() + weeksOfClassesLeft * 7 * DAY_MS);
+  // Measure their real pace once there is enough history to be meaningful.
+  const pacePerWeek =
+    elapsedWeeks >= 2 && classesAttended > 0
+      ? classesAttended / elapsedWeeks
+      : RECOMMENDED_CLASSES_PER_WEEK;
 
-  // Requirements are met on this date; promotion happens on the next
-  // promotion day at or after it.
-  const requirementsMet = new Date(
-    Math.max(timeInRankDate.getTime(), classPaceDate.getTime())
-  );
+  const weeksLeft = classesRemaining / pacePerWeek;
+  const requirementsMet = new Date(today.getTime() + weeksLeft * 7 * DAY_MS);
   const projected = nextPromotionDay(requirementsMet);
-  const eligibleNow =
-    classesAttended >= classesRequired && today >= timeInRankDate;
 
   return {
     classesAttended,
     classesRequired,
+    classesRemaining,
     weeksInRank,
-    minWeeksInRank,
     progress: Math.min(1, classesAttended / classesRequired),
+    pacePerWeek: Math.round(pacePerWeek * 10) / 10,
     projectedDate: nextBelt ? projected.toISOString().slice(0, 10) : null,
-    eligibleNow,
+    slipEarned: classesAttended >= classesRequired,
     nextBelt,
     confirmed: PROMOTION_DATA_CONFIRMED,
   };
