@@ -89,7 +89,8 @@ export function Stat({
   value,
   label,
 }: {
-  value: string;
+  /** ReactNode so callers can pass an animated counter, not just a string. */
+  value: ReactNode;
   label: string;
 }) {
   return (
