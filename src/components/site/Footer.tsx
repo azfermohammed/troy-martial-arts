@@ -81,7 +81,7 @@ export function Footer() {
             © {new Date().getFullYear()} {BIZ.legalName} · Serving Troy, MI since {BIZ.founded}
           </p>
           <p>
-            ★ {BIZ.rating} rating from {BIZ.reviewCount}+ Google reviews
+            ★ {BIZ.rating} rating from {BIZ.reviewCount} Google reviews
           </p>
         </Container>
       </div>

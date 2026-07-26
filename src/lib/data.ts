@@ -11,7 +11,8 @@ export const BIZ = {
   phone: "(248) 828-4360",
   phoneHref: "tel:+12488284360",
   rating: 4.9,
-  reviewCount: 648,
+  // The school states "500+ five-star reviews" on troymartialarts.net.
+  reviewCount: "500+",
   studentsTaught: "7,000+",
   instructorCount: "12+",
   combinedExperience: "200+ yrs",
