@@ -11,7 +11,10 @@ import {
   StatusBadge,
 } from "@/components/portal/ui";
 import { Icon, type IconName } from "@/components/portal/icons";
-import { projectPromotion, PROMOTION_RULES } from "@/lib/portal/promotion";
+import {
+  projectPromotion,
+  RECOMMENDED_CLASSES_PER_WEEK,
+} from "@/lib/portal/promotion";
 
 const daysAgo = (n: number) =>
   new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
@@ -111,7 +114,11 @@ function PersonalDashboard() {
                   ? fmtDate(projection.projectedDate)
                   : "Top rank"
             }
-            hint="estimated — confirm with your instructor"
+            hint={
+              projection.confirmed
+                ? "based on your attendance"
+                : "estimate only — grading requirements not yet confirmed"
+            }
             accent={projection.eligibleNow ? "text-green-700" : "text-graphite"}
           />
         </div>
@@ -124,8 +131,10 @@ function PersonalDashboard() {
               Progress to {projection.nextBelt}
             </h2>
             <p className="text-xs text-muted">
-              {PROMOTION_RULES.classesRequired} classes ·{" "}
-              {PROMOTION_RULES.minWeeksInRank} weeks minimum in rank
+              {projection.classesRequired} classes ·{" "}
+              {projection.minWeeksInRank} weeks minimum in rank
+              {" · "}
+              {projection.weeksInRank} weeks held so far
             </p>
           </div>
           <div className="mt-4 h-3 overflow-hidden rounded-full bg-canvas ring-1 ring-edge">
@@ -140,8 +149,8 @@ function PersonalDashboard() {
             ) : (
               <>
                 {projection.classesRequired - projection.classesAttended} more
-                classes at the recommended{" "}
-                {PROMOTION_RULES.recommendedClassesPerWeek} per week.
+                classes at the recommended {RECOMMENDED_CLASSES_PER_WEEK} per
+                week.
               </>
             )}
           </p>
