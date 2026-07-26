@@ -73,6 +73,107 @@ export function Reveal({
 }
 
 /**
+ * A thin reading-progress bar pinned to the top of the viewport.
+ *
+ * Scales a fixed element rather than animating width, so it stays on the
+ * compositor and never triggers layout while scrolling.
+ */
+export function ScrollProgress() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const el = ref.current;
+      if (!el) return;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = max > 0 ? Math.min(1, window.scrollY / max) : 0;
+      el.style.transform = `scaleX(${pct})`;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      aria-hidden
+      className="scroll-progress w-full"
+      style={{ transform: "scaleX(0)" }}
+    />
+  );
+}
+
+/**
+ * Reveals children one after another once the group scrolls into view — used
+ * for the belt journey, so ranks light up in order rather than all at once.
+ */
+export function StaggerIn({
+  children,
+  step = 70,
+  className = "",
+}: {
+  children: ReactNode[];
+  /** Milliseconds between each child. */
+  step?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (typeof IntersectionObserver === "undefined" || prefersReducedMotion()) {
+      const id = requestAnimationFrame(() => setStarted(true));
+      return () => cancelAnimationFrame(id);
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        setStarted(true);
+        observer.disconnect();
+      }
+    }, OBSERVER_OPTIONS);
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className={className}>
+      {children.map((child, i) => (
+        <span
+          key={i}
+          // .stagger-item (not Tailwind's opacity-0) so the <noscript> and
+          // reduced-motion rules can force these visible.
+          className={started ? "belt-pop" : "stagger-item"}
+          style={started ? { animationDelay: `${i * step}ms` } : undefined}
+        >
+          {child}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/**
  * Counts up to a number once scrolled into view. Falls back to the final value
  * immediately when motion is reduced or observers are unavailable.
  */
