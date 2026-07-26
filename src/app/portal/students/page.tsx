@@ -29,6 +29,7 @@ const EMPTY_FORM = {
   phone: "",
   email: "",
   joinDate: new Date().toISOString().slice(0, 10),
+  lastPromotionDate: "",
   status: "Active" as const,
   isAssistant: false,
 };
@@ -71,7 +72,12 @@ function StudentsInner() {
   function promote(s: Student) {
     const idx = PORTAL_BELTS.indexOf(s.belt as (typeof PORTAL_BELTS)[number]);
     if (idx >= 0 && idx < PORTAL_BELTS.length - 1) {
-      updateStudent(s.id, { belt: PORTAL_BELTS[idx + 1] });
+      // Stamp the promotion date so the next projection measures from the new
+      // rank rather than from when the student joined.
+      updateStudent(s.id, {
+        belt: PORTAL_BELTS[idx + 1],
+        lastPromotionDate: new Date().toISOString().slice(0, 10),
+      });
     }
   }
 
@@ -86,6 +92,8 @@ function StudentsInner() {
       phone: String(fd.get("phone") ?? ""),
       email: String(fd.get("email") ?? ""),
       joinDate: String(fd.get("joinDate") ?? ""),
+      // Blank means "never promoted" — projections then fall back to joinDate.
+      lastPromotionDate: String(fd.get("lastPromotionDate") ?? "") || undefined,
       status: (fd.get("status") === "Inactive" ? "Inactive" : "Active") as Student["status"],
       isAssistant: fd.get("isAssistant") === "on",
     };
@@ -288,6 +296,20 @@ function StudentsInner() {
                 defaultValue={formDefaults.joinDate}
                 className={inputCls}
               />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-semibold text-graphite">
+                Current belt since
+              </label>
+              <input
+                name="lastPromotionDate"
+                type="date"
+                defaultValue={formDefaults.lastPromotionDate ?? ""}
+                className={inputCls}
+              />
+              <p className="mt-1 text-[11px] leading-snug text-muted">
+                Drives the promotion estimate. Leave blank if never promoted.
+              </p>
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-graphite">Status</label>
