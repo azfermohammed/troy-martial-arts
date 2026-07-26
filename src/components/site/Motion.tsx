@@ -1,11 +1,9 @@
-import type { ReactNode } from "react";
-
 /**
  * Motion that needs no JavaScript.
  *
- * Deliberately not a client component: these run on CSS alone, so they work
- * with JS disabled, cost nothing at hydration, and cannot hide content the way
- * an observer-driven reveal can.
+ * Deliberately not a client component: this runs on CSS alone, so it works
+ * with JS disabled, costs nothing at hydration, and cannot hide content the
+ * way an observer-driven reveal can.
  */
 
 /**
@@ -44,48 +42,5 @@ export function KineticText({
         </span>
       ))}
     </span>
-  );
-}
-
-/**
- * Edge-faded ticker that scrolls forever and pauses on hover.
- *
- * Items render twice so translating the track by half its width loops
- * seamlessly; the duplicate is aria-hidden so the list is announced once.
- */
-export function Marquee({
-  items,
-  durationSeconds = 48,
-  className = "",
-}: {
-  items: ReactNode[];
-  durationSeconds?: number;
-  className?: string;
-}) {
-  const row = (duplicate: boolean) => (
-    <div className="flex shrink-0" aria-hidden={duplicate || undefined}>
-      {items.map((item, i) => (
-        <span key={i} className="flex items-center whitespace-nowrap">
-          {item}
-          <span aria-hidden className="mx-6 text-gold/60">
-            ◆
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-
-  return (
-    <div className={`marquee-mask overflow-hidden ${className}`}>
-      <div
-        className="marquee-track"
-        style={
-          { "--marquee-duration": `${durationSeconds}s` } as React.CSSProperties
-        }
-      >
-        {row(false)}
-        {row(true)}
-      </div>
-    </div>
   );
 }
