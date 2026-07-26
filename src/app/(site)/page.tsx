@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { BIZ, INSTRUCTORS, PROGRAMS, REVIEWS } from "@/lib/data";
+import { BIZ, CLASS_SESSIONS, INSTRUCTORS, PROGRAMS, REVIEWS } from "@/lib/data";
 import {
   BeltStripe,
   ButtonLink,
@@ -11,6 +11,7 @@ import {
   Stat,
 } from "@/components/ui";
 import { asset } from "@/lib/assetPath";
+import { CountUp, Reveal } from "@/components/site/Reveal";
 
 function Hero() {
   return (
@@ -94,9 +95,18 @@ function TrustBar() {
     <section className="border-b border-ink/5 bg-paper">
       <Container className="grid grid-cols-2 gap-8 py-10 sm:grid-cols-4">
         <Stat value={`${BIZ.rating}★`} label={`${BIZ.reviewCount} Google reviews`} />
-        <Stat value={BIZ.instructorCount} label="certified instructors" />
-        <Stat value={BIZ.classesPerWeek} label="classes every week" />
-        <Stat value="6 days" label="open every week" />
+        <Stat
+          value={<CountUp value={12} suffix="+" />}
+          label="certified instructors"
+        />
+        <Stat
+          value={<CountUp value={CLASS_SESSIONS.length} />}
+          label="classes every week"
+        />
+        <Stat
+          value={<CountUp value={7000} suffix="+" />}
+          label="students taught"
+        />
       </Container>
     </section>
   );
@@ -113,11 +123,11 @@ function ProgramsSection() {
           sub="Kids, teens, adults and whole families train on a Kukkiwon-certified, Olympic-based curriculum, six days a week."
         />
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PROGRAMS.map((p) => (
+          {PROGRAMS.map((p, i) => (
+            <Reveal key={p.id} delay={i * 80}>
             <Link
-              key={p.id}
               href={`/programs#${p.id}`}
-              className="group overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
+              className="group block h-full overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
             >
               <Image
                 src={asset(p.image)}
@@ -141,6 +151,7 @@ function ProgramsSection() {
                 )}
               </div>
             </Link>
+            </Reveal>
           ))}
         </div>
       </Container>
@@ -201,10 +212,10 @@ function InstructorsSection() {
         />
 
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {INSTRUCTORS.map((i) => (
+          {INSTRUCTORS.map((i, idx) => (
+            <Reveal key={i.name} delay={(idx % 3) * 90}>
             <div
-              key={i.name}
-              className="rounded-2xl border border-ink/8 bg-white p-6 shadow-lift"
+              className="h-full rounded-2xl border border-ink/8 bg-white p-6 shadow-lift transition-transform duration-200 hover:-translate-y-1"
             >
               <h3 className="font-display text-base font-bold text-ink">{i.name}</h3>
               {i.role && (
@@ -221,6 +232,7 @@ function InstructorsSection() {
                 ))}
               </ul>
             </div>
+            </Reveal>
           ))}
         </div>
 
@@ -249,10 +261,10 @@ function ReviewsSection() {
           </ButtonLink>
         </div>
         <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {REVIEWS.slice(0, 6).map((r) => (
+          {REVIEWS.slice(0, 6).map((r, i) => (
+            <Reveal key={r.name + r.context} delay={(i % 3) * 90}>
             <figure
-              key={r.name + r.context}
-              className="flex flex-col rounded-3xl border border-ink/8 bg-white p-7 shadow-lift"
+              className="flex h-full flex-col rounded-3xl border border-ink/8 bg-white p-7 shadow-lift"
             >
               <Stars className="h-4 w-4" />
               <blockquote className="mt-4 flex-1 text-sm leading-relaxed text-ink-soft">
@@ -263,6 +275,7 @@ function ReviewsSection() {
                 <p className="text-xs text-ink-soft/60">{r.context}</p>
               </figcaption>
             </figure>
+            </Reveal>
           ))}
         </div>
       </Container>

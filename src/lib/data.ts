@@ -364,6 +364,9 @@ export const CLASS_SESSIONS: ClassSession[] = [
   { id: "tue-1940", day: "Tue", start: 1180, slot: "7:40–8:20 PM", levels: ["Beginner", "Intermediate", "Advanced"] },
 
   // Wednesday
+  // Confirmed by the school. Appears in the 5-10 column of the printed sheet
+  // rather than 11-15/Adult, so it was missed when those two were merged.
+  { id: "wed-1630", day: "Wed", start: 990, slot: "4:30–5:00 PM", levels: ["Beginner"] },
   { id: "wed-1710", day: "Wed", start: 1030, slot: "5:10–5:50 PM", levels: ["Advanced"] },
   { id: "wed-1800", day: "Wed", start: 1080, slot: "6:00–6:40 PM", levels: ["Beginner", "Intermediate", "Advanced"], focus: "Sparring" },
   { id: "wed-1850", day: "Wed", start: 1130, slot: "6:50–7:30 PM", levels: ["Beginner", "Intermediate"] },
