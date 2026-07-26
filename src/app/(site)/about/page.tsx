@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { BELT_RANKS, BIZ } from "@/lib/data";
+import { BELT_RANKS, BIZ, HISTORY } from "@/lib/data";
 import {
   BeltStripe,
   ButtonLink,
@@ -10,9 +10,9 @@ import {
 } from "@/components/ui";
 
 export const metadata: Metadata = {
-  title: "About — 45 Years of Taekwondo in Troy, MI",
+  title: "About — Taekwondo in Troy, MI Since 1980",
   description:
-    "Founded in 1980, Troy Martial Arts is a Kukkiwon-certified Taekwondo school led by Master Trudeau with 12+ certified instructors and 7,000+ students taught.",
+    "Founded in 1980 as Kil's Martial Arts and bought by Master Tammy Trudeau in 2003, Troy Martial Arts is a Kukkiwon-certified school with 12+ certified instructors and 7,000+ students taught.",
 };
 
 export default function AboutPage() {
@@ -90,6 +90,38 @@ export default function AboutPage() {
               </li>
             </ul>
           </div>
+        </Container>
+      </section>
+
+      {/* Founding story */}
+      <section className="py-16 lg:py-20">
+        <Container>
+          <div className="mx-auto max-w-2xl text-center">
+            <Eyebrow>Our history</Eyebrow>
+            <h2 className="mt-4 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
+              From Kil&apos;s Martial Arts to Troy Martial Arts
+            </h2>
+          </div>
+          <ol className="mx-auto mt-12 max-w-3xl space-y-6">
+            {HISTORY.map((h) => (
+              <li
+                key={h.year}
+                className="grid gap-4 rounded-3xl border border-ink/8 bg-white p-7 shadow-lift sm:grid-cols-[110px_1fr] sm:gap-6"
+              >
+                <span className="font-display text-2xl font-extrabold text-brand">
+                  {h.year}
+                </span>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    {h.title}
+                  </h3>
+                  <p className="mt-1.5 leading-relaxed text-ink-soft/80">
+                    {h.body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </Container>
       </section>
 

@@ -511,10 +511,73 @@ export const REVIEWS: Review[] = [
   },
 ];
 
+// ----- FAQ (answers as given on troymartialarts.net/faq) -----
+
+export interface Faq {
+  q: string;
+  a: string;
+  /** Grouping for the page, not from the source site. */
+  topic: "Classes" | "Belts & testing" | "Sparring" | "Events" | "Parents";
+}
+
+export const FAQS: Faq[] = [
+  {
+    topic: "Classes",
+    q: "How many classes can we take weekly?",
+    a: "Students can take an unlimited number of classes weekly, and there are classes every day except Sunday. We recommend only taking 2 regular classes per week — 99% of the school does 2 classes per week.",
+  },
+  {
+    topic: "Belts & testing",
+    q: "How often do we have belt promotions?",
+    a: "Color belt promotions are once per month, usually the second Saturday of the month. The 10-step advancement process is in the General Rules on the back of the hardcopy schedule and in the Troy Martial Arts app.",
+  },
+  {
+    topic: "Belts & testing",
+    q: "If we register for the belt promotion and miss it, what happens?",
+    a: "Students who miss the promotion can either receive their new belt in their next class, or wait until the following month to attend the promotion.",
+  },
+  {
+    topic: "Sparring",
+    q: "How does sparring class work?",
+    a: "Students can start sparring any time they choose, though most start after earning their Yellow or Sr. Yellow belt. It is not mandatory until Black Belt classes. Students may attend one sparring class per week, and need certified equipment — $189 for female students, $199 for male students.",
+  },
+  {
+    topic: "Events",
+    q: "How do the tournaments work?",
+    a: "We host two tournaments a year, usually in March and September, for Troy Martial Arts students only. They run across two Saturdays split by age group, with Poomsae (forms) and sparring. Every student receives either a 1st or 2nd place trophy for the Poomsae competition. Registration is $75, with family discounts available. We also compete at the Michigan State Championships and national tournaments.",
+  },
+  {
+    topic: "Parents",
+    q: "Can I watch class from home?",
+    a: "Yes — three cameras run during classes so parents can watch remotely. Instructions for setting up the WYZE cameras on your phone are posted in the office.",
+  },
+];
+
+// ----- School history (from troymartialarts.net/history) -----
+
+export const HISTORY: { year: string; title: string; body: string }[] = [
+  {
+    year: "1980",
+    title: "Kil's Martial Arts opens",
+    body: "A martial arts revolution unfolded in Troy, Michigan with the establishment of Kil's Martial Arts by the Kil family, a dedicated family of Taekwondo practitioners.",
+  },
+  {
+    year: "2003",
+    title: "Master Tammy Trudeau takes over",
+    body: "The school was purchased by Master Tammy Trudeau and renamed Troy Martial Arts. She brought extensive Taekwondo training and sought to share its benefits with her community.",
+  },
+  {
+    year: "Today",
+    title: "The largest single school in Michigan",
+    body: "Now the largest single school in Michigan, both in square feet and in students. The main Taekwondo curriculum has grown into a full self-defense curriculum drawing on Karate, Kung Fu, Krav Maga, Judo and Jiu Jitsu.",
+  },
+];
+
 export const NAV_LINKS = [
   { href: "/programs", label: "Programs" },
   { href: "/schedule", label: "Schedule" },
   { href: "/reviews", label: "Reviews" },
   { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ] as const;
