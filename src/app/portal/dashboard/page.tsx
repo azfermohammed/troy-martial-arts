@@ -11,10 +11,7 @@ import {
   StatusBadge,
 } from "@/components/portal/ui";
 import { Icon, type IconName } from "@/components/portal/icons";
-import {
-  projectPromotion,
-  RECOMMENDED_CLASSES_PER_WEEK,
-} from "@/lib/portal/promotion";
+import { projectPromotion } from "@/lib/portal/promotion";
 
 const daysAgo = (n: number) =>
   new Date(Date.now() - n * 86_400_000).toISOString().slice(0, 10);
@@ -106,20 +103,22 @@ function PersonalDashboard() {
             hint={`${Math.round(projection.progress * 100)}% of classes logged`}
           />
           <StatCard
-            label="Projected promotion"
+            label="Promotion slip"
             value={
-              projection.eligibleNow
-                ? "Eligible"
+              projection.slipEarned
+                ? "Earned"
                 : projection.projectedDate
                   ? fmtDate(projection.projectedDate)
                   : "Top rank"
             }
             hint={
-              projection.confirmed
-                ? "based on your attendance"
-                : "estimate only — grading requirements not yet confirmed"
+              projection.slipEarned
+                ? "ask your instructor for your slip"
+                : projection.confirmed
+                  ? `at your pace of ${projection.pacePerWeek} classes/week`
+                  : "estimate only — class requirement not yet confirmed"
             }
-            accent={projection.eligibleNow ? "text-green-700" : "text-graphite"}
+            accent={projection.slipEarned ? "text-green-700" : "text-graphite"}
           />
         </div>
       )}
@@ -131,10 +130,8 @@ function PersonalDashboard() {
               Progress to {projection.nextBelt}
             </h2>
             <p className="text-xs text-muted">
-              {projection.classesRequired} classes ·{" "}
-              {projection.minWeeksInRank} weeks minimum in rank
-              {" · "}
-              {projection.weeksInRank} weeks held so far
+              {projection.classesRequired} classes needed ·{" "}
+              {projection.weeksInRank} weeks at this belt
             </p>
           </div>
           <div className="mt-4 h-3 overflow-hidden rounded-full bg-canvas ring-1 ring-edge">
@@ -144,13 +141,22 @@ function PersonalDashboard() {
             />
           </div>
           <p className="mt-3 text-sm text-muted">
-            {projection.eligibleNow ? (
-              <>You&apos;ve met the requirements — ask about testing.</>
+            {projection.slipEarned ? (
+              <>
+                You&apos;ve logged enough classes — ask your instructor for your
+                promotion slip.
+              </>
             ) : (
               <>
-                {projection.classesRequired - projection.classesAttended} more
-                classes at the recommended {RECOMMENDED_CLASSES_PER_WEEK} per
-                week.
+                {projection.classesRemaining} more{" "}
+                {projection.classesRemaining === 1 ? "class" : "classes"} to earn
+                your promotion slip. At {projection.pacePerWeek} classes a week
+                that&apos;s about{" "}
+                {Math.max(
+                  1,
+                  Math.ceil(projection.classesRemaining / projection.pacePerWeek)
+                )}{" "}
+                weeks.
               </>
             )}
           </p>
