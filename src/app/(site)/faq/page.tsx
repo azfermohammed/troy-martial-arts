@@ -6,6 +6,7 @@ import {
   Container,
   SectionHeading,
 } from "@/components/ui";
+import { BreadcrumbSchema, FaqSchema } from "@/components/site/StructuredData";
 
 export const metadata: Metadata = {
   title: "FAQ — Classes, Belt Promotions, Sparring & Tournaments",
@@ -24,6 +25,13 @@ const TOPIC_ORDER: Faq["topic"][] = [
 export default function FaqPage() {
   return (
     <>
+      <FaqSchema />
+      <BreadcrumbSchema
+        trail={[
+          { name: "Home", path: "/" },
+          { name: "FAQ", path: "/faq" },
+        ]}
+      />
       <section className="bg-cream">
         <Container className="py-16 text-center lg:py-20">
           <SectionHeading
