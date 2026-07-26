@@ -69,9 +69,9 @@ function PersonalDashboard() {
     projectPromotion({
       currentBelt: me.belt,
       belts: PORTAL_BELTS,
-      // Student records have no lastPromotionDate, so joinDate is the only
-      // available rank-start proxy. Adding that field would make this exact.
-      inRankSince: me.joinDate,
+      // Measured from the current rank. joinDate is only correct for students
+      // who have never been promoted.
+      inRankSince: me.lastPromotionDate ?? me.joinDate,
       attendanceDates: present.map((a) => a.date),
     });
 

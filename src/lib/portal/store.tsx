@@ -51,6 +51,12 @@ export interface Student {
   phone: string;
   email: string;
   joinDate: string; // YYYY-MM-DD
+  /**
+   * When the student entered their current belt (YYYY-MM-DD). Promotion
+   * projections measure from here; joinDate is only a fallback for students
+   * who have never been promoted. Set automatically on promote().
+   */
+  lastPromotionDate?: string;
   status: "Active" | "Inactive";
   isAssistant?: boolean;
 }
@@ -138,9 +144,9 @@ const hoursAgoISO = (n: number) =>
 
 const SEED: PortalData = {
   students: [
-    { id: "s1", name: "Sarah Johnson", age: 12, belt: "Blue", group: "Ages 11–15", phone: "(555) 123-4567", email: "sarah.j@email.com", joinDate: "2023-01-15", status: "Active" },
+    { id: "s1", name: "Sarah Johnson", age: 12, belt: "Blue", group: "Ages 11–15", phone: "(555) 123-4567", email: "sarah.j@email.com", joinDate: "2023-01-15", lastPromotionDate: daysAgo(75), status: "Active" },
     { id: "s2", name: "Mike Chen", age: 8, belt: "White", group: "Ages 5–10", phone: "(555) 234-5678", email: "mike.chen@email.com", joinDate: daysAgo(40), status: "Active" },
-    { id: "s3", name: "Emma Wilson", age: 15, belt: "Sr. Green", group: "Ages 11–15", phone: "(555) 345-6789", email: "emma.w@email.com", joinDate: "2023-06-10", status: "Active", isAssistant: true },
+    { id: "s3", name: "Emma Wilson", age: 15, belt: "Sr. Green", group: "Ages 11–15", phone: "(555) 345-6789", email: "emma.w@email.com", joinDate: "2023-06-10", lastPromotionDate: daysAgo(110), status: "Active", isAssistant: true },
     { id: "s4", name: "James Rodriguez", age: 34, belt: "Black 1st Dan", group: "Adults", phone: "(555) 456-7890", email: "james.r@email.com", joinDate: "2020-03-05", status: "Active" },
     { id: "s5", name: "Lisa Anderson", age: 29, belt: "Sr. Blue", group: "Adults", phone: "(555) 567-8901", email: "lisa.a@email.com", joinDate: "2022-09-12", status: "Active" },
     { id: "s6", name: "David Kim", age: 9, belt: "Yellow", group: "Ages 5–10", phone: "(555) 678-9012", email: "david.k@email.com", joinDate: "2024-08-03", status: "Active" },
