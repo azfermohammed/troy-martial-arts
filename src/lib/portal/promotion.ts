@@ -24,6 +24,44 @@ export interface BeltRequirement {
 /** Real figure, from the school's published schedule. */
 export const RECOMMENDED_CLASSES_PER_WEEK = 2;
 
+/**
+ * Real figure, from the school's FAQ: "Color Belt Promotions are once per
+ * month, usually the second Saturday of the month." Projections snap forward
+ * to one of these, since a student is promoted on a promotion day rather than
+ * the day they happen to meet the requirements.
+ */
+export const PROMOTION_WEEK_OF_MONTH = 2;
+export const PROMOTION_WEEKDAY = 6; // Saturday
+
+/** The Nth given weekday of a month, e.g. the 2nd Saturday. */
+function nthWeekdayOfMonth(
+  year: number,
+  month: number,
+  weekday: number,
+  nth: number
+): Date {
+  const first = new Date(year, month, 1);
+  const offset = (weekday - first.getDay() + 7) % 7;
+  return new Date(year, month, 1 + offset + (nth - 1) * 7);
+}
+
+/** The first promotion day on or after `from`. */
+export function nextPromotionDay(from: Date): Date {
+  const candidate = nthWeekdayOfMonth(
+    from.getFullYear(),
+    from.getMonth(),
+    PROMOTION_WEEKDAY,
+    PROMOTION_WEEK_OF_MONTH
+  );
+  if (candidate >= from) return candidate;
+  return nthWeekdayOfMonth(
+    from.getFullYear(),
+    from.getMonth() + 1,
+    PROMOTION_WEEKDAY,
+    PROMOTION_WEEK_OF_MONTH
+  );
+}
+
 /** Set to true once BELT_REQUIREMENTS holds the school's actual policy. */
 export const PROMOTION_DATA_CONFIRMED = false;
 
@@ -108,9 +146,12 @@ export function projectPromotion(opts: {
   const timeInRankDate = new Date(start.getTime() + minWeeksInRank * 7 * DAY_MS);
   const classPaceDate = new Date(today.getTime() + weeksOfClassesLeft * 7 * DAY_MS);
 
-  const projected = new Date(
+  // Requirements are met on this date; promotion happens on the next
+  // promotion day at or after it.
+  const requirementsMet = new Date(
     Math.max(timeInRankDate.getTime(), classPaceDate.getTime())
   );
+  const projected = nextPromotionDay(requirementsMet);
   const eligibleNow =
     classesAttended >= classesRequired && today >= timeInRankDate;
 
