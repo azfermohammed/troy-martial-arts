@@ -73,6 +73,110 @@ export function Reveal({
 }
 
 /**
+ * Drifts its children against the scroll direction.
+ *
+ * `strength` is how far it moves relative to scroll — 0.15 means it lags the
+ * page by 15%. Translation happens in a rAF and is capped, so a long page
+ * can't push the element far enough to leave a gap.
+ */
+export function Parallax({
+  children,
+  strength = 0.15,
+  className = "",
+}: {
+  children: ReactNode;
+  strength?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (prefersReducedMotion()) return;
+    const el = ref.current;
+    if (!el) return;
+
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const rect = el.getBoundingClientRect();
+      // Distance of the element's centre from the viewport centre
+      const fromCentre = rect.top + rect.height / 2 - window.innerHeight / 2;
+      const shift = Math.max(-60, Math.min(60, -fromCentre * strength));
+      el.style.transform = `translate3d(0, ${shift.toFixed(1)}px, 0)`;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [strength]);
+
+  return (
+    <div ref={ref} className={className} style={{ willChange: "transform" }}>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Tips towards the pointer in 3D.
+ *
+ * Mouse only — gated on `pointer: fine`, since on a touchscreen the tilt would
+ * fire on tap and feel like a glitch.
+ */
+export function TiltCard({
+  children,
+  max = 7,
+  className = "",
+}: {
+  children: ReactNode;
+  /** Maximum rotation in degrees. */
+  max?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (prefersReducedMotion()) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+
+    const onMove = (e: PointerEvent) => {
+      const rect = el.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      el.style.transform = `perspective(900px) rotateX(${(-py * max).toFixed(2)}deg) rotateY(${(px * max).toFixed(2)}deg) translateZ(0)`;
+    };
+    const reset = () => {
+      el.style.transform = "";
+    };
+
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", reset);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", reset);
+    };
+  }, [max]);
+
+  return (
+    <div ref={ref} className={`tilt ${className}`}>
+      {children}
+    </div>
+  );
+}
+
+/**
  * A thin reading-progress bar pinned to the top of the viewport.
  *
  * Scales a fixed element rather than animating width, so it stays on the

@@ -11,7 +11,8 @@ import {
   Stat,
 } from "@/components/ui";
 import { asset } from "@/lib/assetPath";
-import { CountUp, Reveal } from "@/components/site/Reveal";
+import { CountUp, Parallax, Reveal, TiltCard } from "@/components/site/Reveal";
+import { KineticText, Marquee } from "@/components/site/Motion";
 
 function Hero() {
   return (
@@ -20,11 +21,11 @@ function Hero() {
         <div className="animate-rise">
           <Eyebrow>Kukkiwon-Certified Taekwondo · Troy, MI</Eyebrow>
           <h1 className="mt-6 font-display text-4xl font-extrabold leading-[1.08] tracking-tight text-ink sm:text-5xl lg:text-6xl">
-            Taekwondo &amp; Self Defense
+            <KineticText text="Taekwondo & Self Defense" />
             <br />
-            in Troy, Michigan
+            <KineticText text="in Troy, Michigan" delay={210} />
             <br />
-            <span className="text-brand">Since 1980.</span>
+            <KineticText text="Since 1980." delay={420} className="text-brand" />
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-soft/80">
             {BIZ.yearsOpen} years on the corner of Crooks &amp; South Blvd,{" "}
@@ -61,16 +62,18 @@ function Hero() {
 
         {/* Real class photography, with the offer priced honestly on top */}
         <div className="relative animate-rise" style={{ animationDelay: "0.15s" }}>
-          <div className="overflow-hidden rounded-3xl border border-ink/10 shadow-lift">
-            <Image
-              src={asset("/img/class-2.jpg")}
-              alt="Young students sparring in protective gear at Troy Martial Arts"
-              width={1024}
-              height={683}
-              priority
-              className="h-[380px] w-full object-cover sm:h-[440px]"
-            />
-          </div>
+          <Parallax strength={0.12}>
+            <div className="overflow-hidden rounded-3xl border border-ink/10 shadow-lift">
+              <Image
+                src={asset("/img/class-2.jpg")}
+                alt="Young students sparring in protective gear at Troy Martial Arts"
+                width={1024}
+                height={683}
+                priority
+                className="h-[380px] w-full object-cover sm:h-[440px]"
+              />
+            </div>
+          </Parallax>
 
           <div className="animate-float absolute -bottom-6 left-4 right-4 rounded-2xl bg-brand p-5 text-white shadow-pop sm:left-8 sm:right-8">
             <div className="flex items-baseline gap-2">
@@ -112,6 +115,35 @@ function TrustBar() {
   );
 }
 
+/**
+ * Scrolling band of what the instructors actually are away from the mat —
+ * engineers, a surgeon, teachers, state champions. Pulled from INSTRUCTORS so
+ * it can never drift from the staff list.
+ */
+function CredentialBand() {
+  const credentials = INSTRUCTORS.flatMap((i) => i.credentials).filter((c) =>
+    /University|MIT|Carnegie|Michigan|Kettering|Oakland|Lawrence|Champion|Surgeon|Engineer|Teacher|Director|President|Ford|General Motors/i.test(
+      c
+    )
+  );
+
+  return (
+    <section className="border-y border-ink/5 bg-ink py-5 text-white">
+      <p className="sr-only">
+        Credentials held by the Troy Martial Arts instructor team.
+      </p>
+      <Marquee
+        durationSeconds={70}
+        items={credentials.map((c) => (
+          <span key={c} className="text-sm font-semibold text-white/85">
+            {c}
+          </span>
+        ))}
+      />
+    </section>
+  );
+}
+
 function ProgramsSection() {
   return (
     <section className="py-20 lg:py-24">
@@ -125,9 +157,10 @@ function ProgramsSection() {
         <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PROGRAMS.map((p, i) => (
             <Reveal key={p.id} delay={i * 80}>
+            <TiltCard className="h-full">
             <Link
               href={`/programs#${p.id}`}
-              className="group block h-full overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
+              className="group block h-full overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-shadow duration-200 hover:border-brand/30 hover:shadow-pop"
             >
               <div className="h-44 overflow-hidden">
                 <Image
@@ -153,6 +186,7 @@ function ProgramsSection() {
                 )}
               </div>
             </Link>
+            </TiltCard>
             </Reveal>
           ))}
         </div>
@@ -393,6 +427,7 @@ export default function HomePage() {
     <>
       <Hero />
       <TrustBar />
+      <CredentialBand />
       <ProgramsSection />
       <WhySection />
       <InstructorsSection />
