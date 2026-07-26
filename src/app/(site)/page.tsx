@@ -12,7 +12,7 @@ import {
 } from "@/components/ui";
 import { asset } from "@/lib/assetPath";
 import { CountUp, Parallax, Reveal, TiltCard } from "@/components/site/Reveal";
-import { KineticText, Marquee } from "@/components/site/Motion";
+import { KineticText } from "@/components/site/Motion";
 
 function Hero() {
   return (
@@ -111,35 +111,6 @@ function TrustBar() {
           label="students taught"
         />
       </Container>
-    </section>
-  );
-}
-
-/**
- * Scrolling band of what the instructors actually are away from the mat —
- * engineers, a surgeon, teachers, state champions. Pulled from INSTRUCTORS so
- * it can never drift from the staff list.
- */
-function CredentialBand() {
-  const credentials = INSTRUCTORS.flatMap((i) => i.credentials).filter((c) =>
-    /University|MIT|Carnegie|Michigan|Kettering|Oakland|Lawrence|Champion|Surgeon|Engineer|Teacher|Director|President|Ford|General Motors/i.test(
-      c
-    )
-  );
-
-  return (
-    <section className="border-y border-ink/5 bg-ink py-5 text-white">
-      <p className="sr-only">
-        Credentials held by the Troy Martial Arts instructor team.
-      </p>
-      <Marquee
-        durationSeconds={70}
-        items={credentials.map((c) => (
-          <span key={c} className="text-sm font-semibold text-white/85">
-            {c}
-          </span>
-        ))}
-      />
     </section>
   );
 }
@@ -427,7 +398,6 @@ export default function HomePage() {
     <>
       <Hero />
       <TrustBar />
-      <CredentialBand />
       <ProgramsSection />
       <WhySection />
       <InstructorsSection />

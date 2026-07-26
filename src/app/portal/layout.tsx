@@ -21,6 +21,7 @@ const NAV: { href: string; label: string; icon: IconName; roles: Role[] }[] = [
   { href: "/portal/students", label: "Students", icon: "users", roles: ["admin"] },
   { href: "/portal/attendance", label: "Attendance", icon: "clipboard", roles: ["admin"] },
   { href: "/portal/payments", label: "Payments", icon: "card", roles: ["admin"] },
+  { href: "/portal/leads", label: "Leads", icon: "star", roles: ["admin"] },
 ];
 
 // Role stays colour-coded (it carries meaning), retuned for light surfaces.
