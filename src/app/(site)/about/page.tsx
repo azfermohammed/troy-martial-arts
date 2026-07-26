@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BELT_RANKS, BIZ, HISTORY } from "@/lib/data";
+import { StaggerIn } from "@/components/site/Reveal";
 import {
   BeltStripe,
   ButtonLink,
@@ -133,7 +134,10 @@ export default function AboutPage() {
               From white belt to black belt — a clear path
             </h2>
           </div>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-2">
+          <StaggerIn
+            step={90}
+            className="mt-10 flex flex-wrap items-center justify-center gap-2"
+          >
             {BELT_RANKS.map((belt, i) => (
               <span key={belt.name} className="flex items-center gap-2">
                 <span
@@ -149,7 +153,7 @@ export default function AboutPage() {
                 )}
               </span>
             ))}
-          </div>
+          </StaggerIn>
           <p className="mx-auto mt-8 max-w-xl text-center text-sm leading-relaxed text-white/70">
             Every belt has its own class track, so students always train with
             peers at their level — challenged, never overwhelmed. Beyond black

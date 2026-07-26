@@ -72,7 +72,7 @@ function Hero() {
             />
           </div>
 
-          <div className="absolute -bottom-6 left-4 right-4 rounded-2xl bg-brand p-5 text-white shadow-pop sm:left-8 sm:right-8">
+          <div className="animate-float absolute -bottom-6 left-4 right-4 rounded-2xl bg-brand p-5 text-white shadow-pop sm:left-8 sm:right-8">
             <div className="flex items-baseline gap-2">
               <span className="font-display text-4xl font-extrabold leading-none">
                 {BIZ.trial.priceLabel}
@@ -129,13 +129,15 @@ function ProgramsSection() {
               href={`/programs#${p.id}`}
               className="group block h-full overflow-hidden rounded-3xl border border-ink/8 bg-white shadow-lift transition-all duration-200 hover:-translate-y-1 hover:border-brand/30 hover:shadow-pop"
             >
-              <Image
-                src={asset(p.image)}
-                alt={`${p.name} — ${p.ages}`}
-                width={800}
-                height={500}
-                className="h-44 w-full object-cover"
-              />
+              <div className="h-44 overflow-hidden">
+                <Image
+                  src={asset(p.image)}
+                  alt={`${p.name} — ${p.ages}`}
+                  width={800}
+                  height={500}
+                  className="h-44 w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+                />
+              </div>
               <div className="p-7">
                 <p className="text-xs font-bold uppercase tracking-widest text-brand">
                   {p.ages}

@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
+import { ScrollProgress } from "@/components/site/Reveal";
 
 export default function SiteLayout({
   children,
@@ -11,8 +12,9 @@ export default function SiteLayout({
       {/* Scroll-revealed content starts hidden, so make it visible when JS
           is unavailable — otherwise most of the page never appears. */}
       <noscript>
-        <style>{`.reveal{opacity:1 !important;transform:none !important}`}</style>
+        <style>{`.reveal,.stagger-item{opacity:1 !important;transform:none !important}`}</style>
       </noscript>
+      <ScrollProgress />
       <Navbar />
       <main className="flex-1">{children}</main>
       <Footer />
