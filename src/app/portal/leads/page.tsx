@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AdminGate,
   Card,
+  ExportButton,
   inputCls,
   PageHeader,
   StatCard,
@@ -90,6 +91,20 @@ function LeadsInner() {
       <PageHeader
         title="Trial leads"
         sub={`Enquiries from the ${BIZ.trial.priceLabel} trial form on the public site.`}
+        action={
+          <ExportButton
+            base="leads"
+            rows={filtered.map((l) => ({ ...l } as Record<string, unknown>))}
+            columns={[
+              { key: "ts", label: "Received" },
+              { key: "name", label: "Name" },
+              { key: "phone", label: "Phone" },
+              { key: "email", label: "Email" },
+              { key: "program", label: "Program" },
+              { key: "message", label: "Message" },
+            ]}
+          />
+        }
       />
 
       <div className="grid gap-4 sm:grid-cols-3">

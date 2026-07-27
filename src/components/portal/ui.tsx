@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BELT_RANKS } from "@/lib/data";
 import { usePortal } from "@/lib/portal/store";
 import { Icon } from "@/components/portal/icons";
+import { exportCsv } from "@/lib/portal/csv";
 
 /** Renders children only for admin accounts; everyone else sees a lock screen. */
 export function AdminGate({ children }: { children: ReactNode }) {
@@ -171,6 +172,38 @@ export function Modal({
         {children}
       </div>
     </div>
+  );
+}
+
+/**
+ * Downloads the given rows as a CSV. Built in the browser — the portal has no
+ * server, so nothing is uploaded anywhere.
+ */
+export function ExportButton<T extends Record<string, unknown>>({
+  base,
+  rows,
+  columns,
+  label = "Export CSV",
+}: {
+  /** Filename stem, e.g. "students" → troy-students-2026-07-26.csv */
+  base: string;
+  rows: T[];
+  columns: { key: keyof T; label: string }[];
+  label?: string;
+}) {
+  const empty = rows.length === 0;
+  return (
+    <button
+      type="button"
+      onClick={() => exportCsv(base, rows, columns)}
+      disabled={empty}
+      title={empty ? "Nothing to export" : `Export ${rows.length} rows`}
+      className="inline-flex items-center gap-1.5 rounded-lg border border-edge px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-graphite/25 hover:text-graphite disabled:cursor-not-allowed disabled:opacity-40"
+    >
+      <Icon name="arrowRight" size={15} className="rotate-90" />
+      {label}
+      {!empty && <span className="text-xs text-muted">({rows.length})</span>}
+    </button>
   );
 }
 

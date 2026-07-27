@@ -11,6 +11,7 @@ import {
   AdminGate,
   BeltBadge,
   Card,
+  ExportButton,
   inputCls,
   Modal,
   PageHeader,
@@ -116,6 +117,32 @@ function StudentsInner() {
           students.filter((s) => s.isAssistant).length
         } assistants`}
         action={
+          <div className="flex flex-wrap items-center gap-2">
+          <ExportButton
+            base="students"
+            rows={filtered.map((s) => ({
+              name: s.name,
+              age: s.age,
+              belt: s.belt,
+              group: s.group,
+              status: s.status,
+              phone: s.phone,
+              email: s.email,
+              joinDate: s.joinDate,
+              lastPromotionDate: s.lastPromotionDate ?? "",
+            }))}
+            columns={[
+              { key: "name", label: "Name" },
+              { key: "age", label: "Age" },
+              { key: "belt", label: "Belt" },
+              { key: "group", label: "Program" },
+              { key: "status", label: "Status" },
+              { key: "phone", label: "Phone" },
+              { key: "email", label: "Email" },
+              { key: "joinDate", label: "Joined" },
+              { key: "lastPromotionDate", label: "Belt since" },
+            ]}
+          />
           <PrimaryButton
             onClick={() => {
               setEditing(null);
@@ -125,6 +152,7 @@ function StudentsInner() {
             <Icon name="plus" size={15} />
             Add student
           </PrimaryButton>
+          </div>
         }
       />
 

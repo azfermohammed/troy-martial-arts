@@ -6,6 +6,7 @@ import { usePortal } from "@/lib/portal/store";
 import {
   AdminGate,
   Card,
+  ExportButton,
   inputCls,
   PageHeader,
   PrimaryButton,
@@ -80,6 +81,23 @@ function AttendanceInner() {
       <PageHeader
         title="Attendance"
         sub={`${todayRecords.length} check-in${todayRecords.length === 1 ? "" : "s"} recorded today`}
+        action={
+          <ExportButton
+            base="attendance"
+            rows={history.map((a) => ({
+              date: a.date,
+              student: students.find((s) => s.id === a.studentId)?.name ?? "—",
+              classLabel: a.classLabel,
+              present: a.present ? "Present" : "Absent",
+            }))}
+            columns={[
+              { key: "date", label: "Date" },
+              { key: "student", label: "Student" },
+              { key: "classLabel", label: "Class" },
+              { key: "present", label: "Status" },
+            ]}
+          />
+        }
       />
 
       {/* Take attendance */}
