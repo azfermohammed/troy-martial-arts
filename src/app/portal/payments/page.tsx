@@ -5,6 +5,7 @@ import { usePortal, type Payment } from "@/lib/portal/store";
 import {
   AdminGate,
   Card,
+  ExportButton,
   inputCls,
   Modal,
   PageHeader,
@@ -69,10 +70,30 @@ function PaymentsInner() {
         title="Payments"
         sub="Tuition, gear, and event fees"
         action={
-          <PrimaryButton onClick={() => setShowForm(true)}>
-            <Icon name="plus" size={15} />
-            Add payment
-          </PrimaryButton>
+          <div className="flex flex-wrap items-center gap-2">
+            <ExportButton
+              base="payments"
+              rows={filtered.map((p) => ({
+                student:
+                  students.find((s) => s.id === p.studentId)?.name ?? "—",
+                description: p.description,
+                amount: p.amount,
+                dueDate: p.dueDate,
+                status: p.status,
+              }))}
+              columns={[
+                { key: "student", label: "Student" },
+                { key: "description", label: "Description" },
+                { key: "amount", label: "Amount" },
+                { key: "dueDate", label: "Due" },
+                { key: "status", label: "Status" },
+              ]}
+            />
+            <PrimaryButton onClick={() => setShowForm(true)}>
+              <Icon name="plus" size={15} />
+              Add payment
+            </PrimaryButton>
+          </div>
         }
       />
 

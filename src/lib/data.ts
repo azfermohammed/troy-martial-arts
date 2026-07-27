@@ -10,6 +10,12 @@ export const BIZ = {
   addressNote: "Rite-Aid Plaza · corner of Crooks Rd & South Blvd",
   phone: "(248) 828-4360",
   phoneHref: "tel:+12488284360",
+  email: "info@troymartialarts.net",
+  // Absolute base for sitemap, canonical URLs and JSON-LD. Override per
+  // deploy with NEXT_PUBLIC_SITE_URL when a custom domain is attached.
+  siteUrl:
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "https://azfermohammed.github.io/troy-martial-arts",
   rating: 4.9,
   // The school states "500+ five-star reviews" on troymartialarts.net.
   reviewCount: "500+",

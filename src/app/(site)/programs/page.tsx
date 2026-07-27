@@ -9,6 +9,10 @@ import {
   SectionHeading,
 } from "@/components/ui";
 import { asset } from "@/lib/assetPath";
+import {
+  BreadcrumbSchema,
+  CoursesSchema,
+} from "@/components/site/StructuredData";
 
 export const metadata: Metadata = {
   title: "Programs — Kids, Teens, Adults & Family Taekwondo",
@@ -19,6 +23,13 @@ export const metadata: Metadata = {
 export default function ProgramsPage() {
   return (
     <>
+      <CoursesSchema />
+      <BreadcrumbSchema
+        trail={[
+          { name: "Home", path: "/" },
+          { name: "Programs", path: "/programs" },
+        ]}
+      />
       <section className="bg-cream">
         <Container className="py-16 lg:py-20">
           <SectionHeading

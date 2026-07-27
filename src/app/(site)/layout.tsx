@@ -1,6 +1,8 @@
 import { Navbar } from "@/components/site/Navbar";
 import { Footer } from "@/components/site/Footer";
 import { ScrollProgress } from "@/components/site/Reveal";
+import { BackToTop, SkipLink, StickyCta } from "@/components/site/SiteChrome";
+import { LocalBusinessSchema } from "@/components/site/StructuredData";
 
 export default function SiteLayout({
   children,
@@ -14,10 +16,16 @@ export default function SiteLayout({
       <noscript>
         <style>{`.reveal,.stagger-item{opacity:1 !important;transform:none !important}`}</style>
       </noscript>
+      <LocalBusinessSchema />
+      <SkipLink />
       <ScrollProgress />
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main id="main" className="flex-1">
+        {children}
+      </main>
       <Footer />
+      <StickyCta />
+      <BackToTop />
     </>
   );
 }
