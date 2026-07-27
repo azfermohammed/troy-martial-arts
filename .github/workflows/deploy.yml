@@ -27,6 +27,15 @@ jobs:
       - run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: /troy-martial-arts
+          NEXT_PUBLIC_SITE_URL: https://azfermohammed.github.io/troy-martial-arts
+          # Supabase publishable key — public by design. It identifies the
+          # project and nothing more; row-level security in Postgres decides
+          # what it may actually do. Repo variables win if set, so values can
+          # be rotated without editing this file.
+          #
+          # The service-role key must never be referenced here.
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || 'https://ynaugttkqibunnajfjey.supabase.co' }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_LcBBhdujVlCXj-PJsXCODA_yMdnt4-r' }}
       - run: touch out/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

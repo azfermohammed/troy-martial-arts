@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { BIZ, PROGRAMS } from "@/lib/data";
+import { getSupabase } from "@/lib/supabase";
 
 interface Lead {
   name: string;
@@ -17,9 +18,13 @@ const inputCls =
 
 export function TrialForm() {
   const [sent, setSent] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (busy) return;
+
     const fd = new FormData(e.currentTarget);
     const lead: Lead = {
       name: String(fd.get("name") ?? ""),
@@ -29,14 +34,41 @@ export function TrialForm() {
       message: String(fd.get("message") ?? ""),
       ts: new Date().toISOString(),
     };
-    // Demo mode: store the lead locally. Swap for an email/CRM endpoint in production.
+
+    setBusy(true);
+    setFailed(false);
+
+    const supabase = getSupabase();
+
+    if (supabase) {
+      const { error } = await supabase.from("leads").insert({
+        name: lead.name,
+        phone: lead.phone,
+        email: lead.email,
+        program: lead.program,
+        message: lead.message,
+      });
+      setBusy(false);
+      if (error) {
+        // Say so rather than showing a false success — an enquiry that
+        // silently vanishes is worse than one the visitor knows to re-send.
+        setFailed(true);
+        return;
+      }
+      setSent(true);
+      return;
+    }
+
+    // No database configured (local demo): keep the enquiry in this browser
+    // so the portal's leads page still has something to show.
     try {
       const key = "tma-trial-leads";
       const existing: Lead[] = JSON.parse(localStorage.getItem(key) ?? "[]");
       localStorage.setItem(key, JSON.stringify([...existing, lead]));
     } catch {
-      // storage unavailable (private mode) — still show success in demo
+      // storage unavailable (private mode) — fall through
     }
+    setBusy(false);
     setSent(true);
   }
 
@@ -59,6 +91,19 @@ export function TrialForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {failed && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm leading-relaxed text-red-900"
+        >
+          <strong className="font-bold">We couldn&apos;t send that.</strong>{" "}
+          Nothing was saved, so please try again — or call us on{" "}
+          <a href={BIZ.phoneHref} className="font-bold underline">
+            {BIZ.phone}
+          </a>{" "}
+          and we&apos;ll book you in over the phone.
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className="mb-1.5 block text-sm font-bold text-ink">
@@ -122,9 +167,13 @@ export function TrialForm() {
       </div>
       <button
         type="submit"
-        className="w-full rounded-full bg-brand py-4 text-sm font-extrabold text-white shadow-pop transition-all hover:-translate-y-0.5 hover:bg-brand-dark"
+        disabled={busy}
+        aria-busy={busy}
+        className="w-full rounded-full bg-brand py-4 text-sm font-extrabold text-white shadow-pop transition-all hover:-translate-y-0.5 hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0"
       >
-        Request My {BIZ.trial.priceLabel} 4-Week Trial →
+        {busy
+          ? "Sending…"
+          : `Request My ${BIZ.trial.priceLabel} 4-Week Trial →`}
       </button>
       <p className="text-center text-xs text-ink-soft/50">
         No spam, no obligation — we&apos;ll just call to set up your first class.
