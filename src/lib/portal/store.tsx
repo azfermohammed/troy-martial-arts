@@ -15,6 +15,7 @@ import {
   type ReactNode,
 } from "react";
 import type { AgeGroup } from "@/lib/data";
+import { getSupabase, supabaseConfigured } from "@/lib/supabase";
 
 // ----- Roles & permissions -----
 
@@ -219,6 +220,17 @@ interface PortalCtx {
   ready: boolean;
   user: PortalUser | null;
   data: PortalData;
+  /**
+   * "supabase" when the app was built with credentials — real accounts, real
+   * row-level security. "demo" otherwise, where identity is only local and
+   * carries no authority over the database.
+   */
+  authMode: "supabase" | "demo";
+  authBusy: boolean;
+  authError: string | null;
+  signIn: (email: string, password: string) => Promise<boolean>;
+  signUp: (email: string, password: string, fullName: string) => Promise<boolean>;
+  /** Demo-mode only: adopt an identity without authenticating. */
   login: (u: PortalUser) => void;
   logout: () => void;
   resetDemo: () => void;
@@ -311,7 +323,121 @@ export function PortalProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.removeItem(AUTH_KEY);
     } catch {}
+    const supabase = getSupabase();
+    if (supabase) void supabase.auth.signOut();
   }, []);
+
+  // ----- Real authentication -------------------------------------------
+
+  const authMode: "supabase" | "demo" = supabaseConfigured
+    ? "supabase"
+    : "demo";
+  const [authBusy, setAuthBusy] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
+  /**
+   * Turns a signed-in Supabase user into the PortalUser the UI already
+   * understands. The role comes from `profiles`, never from the client — the
+   * same row RLS consults, so what the UI shows and what the database allows
+   * cannot drift apart.
+   */
+  const loadProfile = useCallback(async (userId: string, email: string) => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+    const { data: profile, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, title, role, is_head_master, student_id")
+      .eq("id", userId)
+      .maybeSingle();
+
+    if (error || !profile) {
+      // Signed in but no profile row — treat as not signed in rather than
+      // guessing a role.
+      setUser(null);
+      return;
+    }
+    setUser({
+      id: profile.id as string,
+      name: (profile.full_name as string) || email,
+      role: profile.role as Role,
+      title: (profile.title as string) || "",
+      isHeadMaster: Boolean(profile.is_head_master),
+      studentId: (profile.student_id as string | null) ?? undefined,
+    });
+  }, []);
+
+  // Adopt an existing session on load, and follow sign-in/sign-out after.
+  useEffect(() => {
+    const supabase = getSupabase();
+    if (!supabase) return;
+
+    let cancelled = false;
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (cancelled || !session?.user) return;
+      void loadProfile(session.user.id, session.user.email ?? "");
+    });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (cancelled) return;
+      if (session?.user) {
+        void loadProfile(session.user.id, session.user.email ?? "");
+      } else {
+        setUser(null);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
+  }, [loadProfile]);
+
+  const signIn = useCallback(
+    async (email: string, password: string): Promise<boolean> => {
+      const supabase = getSupabase();
+      if (!supabase) return false;
+      setAuthBusy(true);
+      setAuthError(null);
+      const { data: result, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setAuthBusy(false);
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      if (result.user) {
+        await loadProfile(result.user.id, result.user.email ?? "");
+      }
+      return true;
+    },
+    [loadProfile]
+  );
+
+  const signUp = useCallback(
+    async (email: string, password: string, fullName: string): Promise<boolean> => {
+      const supabase = getSupabase();
+      if (!supabase) return false;
+      setAuthBusy(true);
+      setAuthError(null);
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: fullName } },
+      });
+      setAuthBusy(false);
+      if (error) {
+        setAuthError(error.message);
+        return false;
+      }
+      // A trigger creates the profile as a 'student'. Staff access is granted
+      // by an admin afterwards — signing up never confers it.
+      return true;
+    },
+    []
+  );
 
   const resetDemo = useCallback(() => {
     setData(SEED);
@@ -426,6 +552,11 @@ export function PortalProvider({ children }: { children: ReactNode }) {
         ready,
         user,
         data,
+        authMode,
+        authBusy,
+        authError,
+        signIn,
+        signUp,
         login,
         logout,
         resetDemo,
