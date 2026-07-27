@@ -11,6 +11,7 @@ import {
 } from "@/components/portal/ui";
 import { Icon } from "@/components/portal/icons";
 import { BIZ } from "@/lib/data";
+import { getSupabase, type LeadRow } from "@/lib/supabase";
 
 /**
  * Shape written by the public trial form (components/site/TrialForm.tsx).
@@ -49,27 +50,64 @@ function LeadsInner() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [ready, setReady] = useState(false);
   const [query, setQuery] = useState("");
+  const [source, setSource] = useState<"database" | "local">("local");
 
-  // Leads live in the browser, so read them after mount.
+  // Read from the database when one is configured, otherwise fall back to
+  // whatever this browser captured in demo mode.
   useEffect(() => {
-    let parsed: Lead[] = [];
-    try {
-      const raw = localStorage.getItem(LEADS_KEY);
-      const value: unknown = raw ? JSON.parse(raw) : [];
-      if (Array.isArray(value)) {
-        parsed = value.filter(
-          (l): l is Lead =>
-            typeof l?.name === "string" && typeof l?.ts === "string"
-        );
+    let cancelled = false;
+
+    async function load() {
+      const supabase = getSupabase();
+
+      if (supabase) {
+        const { data, error } = await supabase
+          .from("leads")
+          .select("id,name,phone,email,program,message,created_at")
+          .order("created_at", { ascending: false });
+
+        if (cancelled) return;
+        if (!error && data) {
+          setLeads(
+            (data as LeadRow[]).map((r) => ({
+              name: r.name,
+              phone: r.phone,
+              email: r.email,
+              program: r.program,
+              message: r.message,
+              ts: r.created_at,
+            }))
+          );
+          setSource("database");
+          setReady(true);
+          return;
+        }
+        // Fall through to local storage so the page still shows something.
       }
-    } catch {
-      // corrupted or unavailable storage — fall through to the empty state
-    }
-    const id = requestAnimationFrame(() => {
+
+      let parsed: Lead[] = [];
+      try {
+        const raw = localStorage.getItem(LEADS_KEY);
+        const value: unknown = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(value)) {
+          parsed = value.filter(
+            (l): l is Lead =>
+              typeof l?.name === "string" && typeof l?.ts === "string"
+          );
+        }
+      } catch {
+        // corrupted or unavailable storage — fall through to the empty state
+      }
+      if (cancelled) return;
       setLeads(parsed.sort((a, b) => b.ts.localeCompare(a.ts)));
+      setSource("local");
       setReady(true);
-    });
-    return () => cancelAnimationFrame(id);
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filtered = useMemo(() => {
@@ -149,9 +187,9 @@ function LeadsInner() {
             appear here.
           </p>
           <p className="mx-auto mt-4 max-w-md text-xs leading-relaxed text-muted">
-            Demo mode stores leads in this browser only, so one submitted on a
-            different device will not show up here. Connecting the form to email
-            or a CRM is what makes this reliable.
+            {source === "database"
+              ? "Connected to the database — enquiries from any device will appear here as soon as they're submitted."
+              : "No database configured, so this only shows enquiries submitted in this browser. One sent from someone else's phone will not appear."}
           </p>
         </Card>
       ) : (
