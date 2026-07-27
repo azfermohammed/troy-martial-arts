@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import {
   DEMO_USERS,
@@ -44,8 +45,144 @@ function Mark({ className = "h-9 w-9 text-xs" }: { className?: string }) {
   );
 }
 
-function LoginScreen() {
+/** Email + password against Supabase Auth. */
+function CredentialsForm() {
+  const { signIn, signUp, authBusy, authError } = usePortal();
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [notice, setNotice] = useState<string | null>(null);
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email") ?? "");
+    const password = String(fd.get("password") ?? "");
+    setNotice(null);
+
+    if (mode === "signup") {
+      const ok = await signUp(email, password, String(fd.get("fullName") ?? ""));
+      if (ok) {
+        setNotice(
+          "Account created. Check your email if confirmation is required, then sign in. New accounts start with student access — ask an admin for staff access."
+        );
+        setMode("signin");
+      }
+      return;
+    }
+    await signIn(email, password);
+  }
+
+  const field =
+    "w-full rounded-lg border border-edge bg-panel px-3.5 py-2.5 text-sm text-graphite placeholder:text-muted/60 focus:border-graphite/30 focus:outline-none focus:ring-2 focus:ring-graphite/10";
+
+  return (
+    <form onSubmit={onSubmit} className="mt-8 space-y-3">
+      {mode === "signup" && (
+        <div>
+          <label htmlFor="fullName" className="mb-1 block text-xs font-semibold text-graphite">
+            Full name
+          </label>
+          <input id="fullName" name="fullName" autoComplete="name" className={field} />
+        </div>
+      )}
+      <div>
+        <label htmlFor="email" className="mb-1 block text-xs font-semibold text-graphite">
+          Email
+        </label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          required
+          autoComplete="email"
+          className={field}
+        />
+      </div>
+      <div>
+        <label htmlFor="password" className="mb-1 block text-xs font-semibold text-graphite">
+          Password
+        </label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          minLength={8}
+          autoComplete={mode === "signin" ? "current-password" : "new-password"}
+          className={field}
+        />
+      </div>
+
+      {authError && (
+        <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-700">
+          {authError}
+        </p>
+      )}
+      {notice && (
+        <p role="status" className="rounded-lg bg-green-50 px-3 py-2 text-xs font-medium text-green-800">
+          {notice}
+        </p>
+      )}
+
+      <button
+        type="submit"
+        disabled={authBusy}
+        className="w-full rounded-lg bg-graphite py-2.5 text-sm font-semibold text-white shadow-tab transition-colors hover:bg-graphite/90 disabled:opacity-60"
+      >
+        {authBusy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
+        className="w-full text-center text-xs font-semibold text-muted hover:text-graphite"
+      >
+        {mode === "signin"
+          ? "No account? Create one"
+          : "Already have an account? Sign in"}
+      </button>
+    </form>
+  );
+}
+
+/** Tap-a-name identities. Only offered when there is no database to protect. */
+function DemoAccounts() {
   const { login } = usePortal();
+  return (
+    <div className="mt-9 space-y-2">
+      <p className="pb-1 text-center text-xs font-semibold uppercase tracking-widest text-muted">
+        Demo accounts — tap to sign in
+      </p>
+      {DEMO_USERS.map((u: PortalUser) => (
+        <button
+          key={u.id}
+          onClick={() => login(u)}
+          className="flex w-full items-center gap-4 rounded-xl border border-edge bg-panel p-4 text-left shadow-card transition-colors hover:border-graphite/25"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-canvas text-base font-semibold text-graphite">
+            {u.name.charAt(0)}
+          </span>
+          <span className="min-w-0">
+            <span className="flex items-center gap-1 truncate text-sm font-semibold text-graphite">
+              {u.name}
+              {u.isHeadMaster && (
+                <Icon name="star" size={13} title="Head master" className="text-amber-500" />
+              )}
+            </span>
+            <span className="block truncate text-xs text-muted">{u.title}</span>
+          </span>
+          <span
+            className={`ml-auto shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${ROLE_BADGES[u.role]}`}
+          >
+            {u.role}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function LoginScreen() {
+  const { authMode } = usePortal();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-canvas px-4 py-12">
@@ -60,39 +197,12 @@ function LoginScreen() {
           </p>
         </div>
 
-        <div className="mt-9 space-y-2">
-          <p className="pb-1 text-center text-xs font-semibold uppercase tracking-widest text-muted">
-            Demo accounts — tap to sign in
-          </p>
-          {DEMO_USERS.map((u: PortalUser) => (
-            <button
-              key={u.id}
-              onClick={() => login(u)}
-              className="flex w-full items-center gap-4 rounded-xl border border-edge bg-panel p-4 text-left shadow-card transition-colors hover:border-graphite/25"
-            >
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-canvas text-base font-semibold text-graphite">
-                {u.name.charAt(0)}
-              </span>
-              <span className="min-w-0">
-                <span className="flex items-center gap-1 truncate text-sm font-semibold text-graphite">
-                  {u.name}
-                  {u.isHeadMaster && (
-                    <Icon name="star" size={13} title="Head master" className="text-amber-500" />
-                  )}
-                </span>
-                <span className="block truncate text-xs text-muted">{u.title}</span>
-              </span>
-              <span
-                className={`ml-auto shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${ROLE_BADGES[u.role]}`}
-              >
-                {u.role}
-              </span>
-            </button>
-          ))}
-        </div>
+        {authMode === "supabase" ? <CredentialsForm /> : <DemoAccounts />}
 
         <p className="mt-8 text-center text-xs leading-relaxed text-muted">
-          Demo mode — data is stored on this device only.
+          {authMode === "supabase"
+            ? "Student records are protected in the database — what you can see is decided by your account, not this page."
+            : "Demo mode — data is stored on this device only."}
           <br />
           <Link
             href="/"
